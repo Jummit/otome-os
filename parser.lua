@@ -7,11 +7,11 @@ local escape = require("utils").escape
 
 local function cmdFromWord(word, commands)
   if word:sub(1, 1) == "'" or tonumber(word) then
-    word = word:gsub("'", "", 1)
-    return {cmd = function() return {word} end, source = word}
+    local inner = word:gsub("'", "", 1)
+    return {cmd = function() return {inner} end, source = word}
 	elseif word:sub(1, 1) == '"' then
-		word = word:sub(2, -2)
-    return {cmd = function() return {word} end, source = word}
+		local inner = word:sub(2, -2)
+    return {cmd = function() return {inner} end, source = word}
   elseif commands[word] then
     return {cmd = commands[word].exec, source = word}
   else

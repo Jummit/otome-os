@@ -25,8 +25,8 @@ local function assertExec(line, result)
 	assertEq(res, result)
 end
 
-local res = tryParse("help")
-assertEq(res.cmd, commands.help.exec)
+local res = tryParse("describe")
+assertEq(res.cmd, commands.describe.exec)
 assertExec([["test string"]], {"test string"})
 assertExec([[write "more string" 'file]], {"INS file more string"})
 assertExec("+ (list 5 3 7)", {5 + 3 + 7.0})
@@ -37,9 +37,10 @@ assertExec("onetoten", {55})
 
 execute("read 'test.lua", system)
 
-local _, err = execute("help", system)
-assertEq(#err, 33)
+local _, err = execute("describe", system)
+assertEq(#err, 37)
 
-_, err = execute("help alias", system)
+_, err = execute("describe alias", system)
 assertEq(#err, 34)
 
+print(execute('combine commands (resize ":   " 100) (describe commands', system))

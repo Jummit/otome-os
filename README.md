@@ -10,7 +10,6 @@ The result of the root is printed
 Commands are basically maps of on stream to another
 square brackets [] can be used to convert a list of arguments into a stream:
 "new [a b c d]" will create files a b c and d
-for now, use (list a b c)
 
 OS
 has repl
@@ -30,10 +29,17 @@ Edit/Debug/Fix cycle:
 x
 
 TODO:
-Flow control: loops, conditions, aliases,
-immediate execution, error handling, folders
+Flow control: loops, conditions
+immediate execution, folders
+execute a file
+functions with parameters
 
-DONE: Tests, Strings, List sugar, 
+DONE: Tests, Strings, List sugar, Aliases, Error handling
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
+Commands should execute instantly. Tasks can be scheduled by the OS:
+
+```
+IN 5 write log
+```

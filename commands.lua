@@ -10,16 +10,16 @@ commands = {
   commands = {desc = "Show a list of available commands", exec = function(_)
     return keys(commands)
   end},
-  replace = {desc = "", args = {"Original", "To replace", "With what to replace"}, exec = function(_, inp, from, to)
+  replace = {desc = "Find and replace inside the stream", args = {"Original", "To replace", "With what to replace"}, exec = function(_, inp, from, to)
     return map(inp, function(v)
       return v:gsub(escape(from[1]), to[1])
     end)
   end},
-  combine = {desc = "Combine two streams", args = "Streams to combine", exec = function(_, ...)
+  combine = {desc = "Combine multiple streams", args = "Streams to combine", exec = function(_, sep, ...)
     local r = {}
-    local streams = map({...}, function(a) return a end)
-    for i = 1, math.max(table.unpack(map(streams, function(e) return #e end))) do
-      table.insert(r, table.concat(map(streams, function(e) return e[i] end), "\t"))
+    local streams = {...}
+    for i = 1, math.min(table.unpack(map(streams, function(e) return #e end))) do
+      table.insert(r, table.concat(map(streams, function(e) return e[i] end), sep[1]))
     end
     return r
   end},
@@ -109,7 +109,7 @@ commands = {
     end
     return actions
   end},
-  help = {desc = "Show help for the given commands", args = "The commands", exec = function(ctx, helpFor)
+  describe = {desc = "Show help for the given commands", args = "The commands", exec = function(ctx, helpFor)
     return map(helpFor, function(c)
       if ctx.aliases[c] then
         return ctx.aliases[c]
@@ -133,6 +133,9 @@ commands = {
   aliases = {desc = "Get a list of aliases", exec = function(ctx)
     return keys(ctx.aliases)
   end},
+  join = {desc = "Join a list of words", args = {"Words", {"Separator"}}, exec = function(_, words, sep)
+		return {table.concat(words, (sep or {" "})[1])}
+  end},
 }
 
 local function addMath(char, fn)
@@ -150,10 +153,10 @@ local function addMath(char, fn)
 	end}
 end
 
-addMath("+", function(a,b) return a + b end)
-addMath("*", function(a,b) return a * b end)
-addMath("-", function(a,b) return a - b end)
-addMath("/", function(a,b) return a / b end)
-addMath("%", function(a,b) return a % b end)
+addMath("+", function(a, b) return a + b end)
+addMath("*", function(a, b) return a * b end)
+addMath("-", function(a, b) return a - b end)
+addMath("/", function(a, b) return a / b end)
+addMath("%", function(a, b) return a % b end)
 
 return commands
