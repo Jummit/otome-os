@@ -2,7 +2,6 @@
 
 local parse = require "parser"
 local commands = require "commands"
-local check = require "check"
 local inspect = require "inspect"
 local system = require "system"
 local execute = require "execute"
@@ -20,32 +19,27 @@ local function assertEq(a, b)
 	assert(a == b, string.format("%s ~= %s", a, b))
 end
 
+local function assertExec(line, result)
+	local res, err = execute(line, system)
+	if err then error(err) end
+	assertEq(res, result)
+end
+
 local res = tryParse("help")
 assertEq(res.cmd, commands.help.exec)
+assertExec([["test string"]], {"test string"})
+assertExec([[write "more string" 'file]], {"INS file more string"})
+assertExec("+ (list 5 3 7)", {5 + 3 + 7.0})
+assertExec("+ [5 3 7]", {5 + 3 + 7.0})
 
-assertEq(execute([["test string"]], system), {"test string"})
+system.aliases.onetoten = "+ (range 1 10)"
+assertExec("onetoten", {55})
 
-assertEq(execute([[write "more string" 'file]], system), {"INS file more string"})
+execute("read 'test.lua", system)
 
-res = tryParse("+ (list 5 3 7)")
-assertEq(res.cmd({}, table.unpack(res.args)), {5 + 3 + 7.0})
+local _, err = execute("help", system)
+assertEq(#err, 33)
 
--- res = tryParse("+ (list 5 3 7)")
--- assertEq(res.args[1](), {"5", "3", "7"})
-
--- res = tryParse("+ [5 3 7]")
--- assertEq(res.args[1](), {"5", "3", "7"})
-
--- res = tryParse("onetoten", {onetoten = "+ (range 1 10)"})
--- assertEq(res.cmd({}, table.unpack(res.args)), {55})
-
--- res = tryParse("read 'test.lua")
--- system.dir = ""
--- assertEq(type(res.cmd(system, table.unpack(res.args))[1]), "string")
-
--- res = tryParse("help")
--- assertEq(#check(res), 33)
-
--- res = tryParse("help alias")
--- assertEq(check(res), "oeu")
+_, err = execute("help alias", system)
+assertEq(#err, 34)
 

@@ -24,8 +24,8 @@ local function addWord(stack, word, commands)
   if not cmd then return err end
 	local cur = stack[#stack]
 	cmd.args = {}
-	if not cur then
-		table.insert(stack, cmd)
+	if not next(cur) then
+		stack[#stack] = cmd
 	else
     table.insert(cur.args, cmd)
   end
@@ -35,20 +35,17 @@ return function(str, commands, aliases)
 	str = str:gsub("%a+", function(s)
 		return aliases[s] or s
 	end)
-  local stack = {}
+  local stack = {{}}
   while #str > 0 do
 		local next = str:sub(1,1)
     if next == "(" then
-      table.insert(stack, {args = {}})
+      table.insert(stack, {})
     elseif next == ")" then
       table.insert(stack[#stack - 1].args, table.remove(stack))
     elseif next == "[" then
       table.insert(stack, {args = {}, cmd = commands.list.exec, source = "Square brackets"})
     elseif next == "]" then
-      local sub = table.remove(stack)
-      table.insert(stack[#stack].args, function(system)
-        return sub.cmd(system, table.unpack(sub.args))
-      end)
+      table.insert(stack[#stack - 1].args, table.remove(stack))
 		elseif next == '"' then
 			next = str:match('"[^"]+"')
 			local err = addWord(stack, next, commands)

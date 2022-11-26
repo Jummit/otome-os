@@ -6,8 +6,11 @@ local resolveCommand
 function resolveCommand(command, system)
 	local args = {}
 	for _, arg in ipairs(command.args) do
-		table.insert(args, resolveCommand(arg, system))
+		local argCommand, err = resolveCommand(arg, system)
+		if err then return nil, err end
+		table.insert(args, argCommand)
 	end
+	command.args = args
   local err = check(command)
 	if err then return nil, err end
   return command.cmd(system, table.unpack(args))

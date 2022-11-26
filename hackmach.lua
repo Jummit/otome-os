@@ -15,16 +15,24 @@ local execute = require "execute"
 -- }}
 
 local function main()
-  local result
+  local lastResult
   while true do
     io.write("> ")
     local line = io.read()
     if line == "" or line == "x" then
-      for _, v in ipairs(result) do
+      for _, v in ipairs(lastResult) do
         system:executeSystem(v)
       end
     else
-      result = execute(line)
+      local result, err = execute(line, system)
+      if result then
+        lastResult = result
+        for _, s in ipairs(result) do
+          print(s)
+        end
+      else
+        print(err)
+      end
     end
   end
 end
