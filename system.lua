@@ -6,9 +6,29 @@ local strip = require("utils").strip
 local join = require("utils").join
 
 local system = {
-	files = {},
+	aliases = {},
+	dir = "/home/jummit/.local/share/otomeos/",
 	history = require("history")(),
 }
+
+function system:getFiles()
+	local files = {}
+	local out = io.popen("ls -1 "..self.dir):read("a")
+	for file in out:gmatch("[^\n]+") do
+		table.insert(files, file)
+	end
+	return files
+end
+
+function system:read(file)
+	local f = io.open(self.dir..file)
+	if not f then return "no" end
+	local lines = {}
+	for line in f:read("a"):gmatch("[^\n]+") do
+		table.insert(lines, line)
+	end
+	return lines
+end
 
 function system:execute(line)
   local s = line:find(" ")

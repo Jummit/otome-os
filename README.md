@@ -10,7 +10,7 @@ The result of the root is printed
 Commands are basically maps of on stream to another
 square brackets [] can be used to convert a list of arguments into a stream:
 "new [a b c d]" will create files a b c and d
-for now, use list
+for now, use (list a b c)
 
 OS
 has repl
@@ -29,8 +29,11 @@ Edit/Debug/Fix cycle:
 (Editor is now open, when quit a system command is printed to stdout)
 x
 
-TODO: Tests, Strings, List sugar, Flow control: loops, conditions, aliases,
+TODO:
+Flow control: loops, conditions, aliases,
 immediate execution, error handling, folders
 
-Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming
+DONE: Tests, Strings, List sugar, 
+
+Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
