@@ -14,7 +14,7 @@ local function main()
     local line = io.read()
     if line == "" or line == "x" then
       for _, v in ipairs(lastResult) do
-        system:executeSystem(v)
+        system:execute(v)
       end
     else
       local result, err = execute(line, system)

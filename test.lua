@@ -38,9 +38,9 @@ assertExec("onetoten", {55})
 execute("read 'test.lua", system)
 
 local _, err = execute("describe", system)
-assertEq(#err, 37)
+assertEq(type(err), "string")
 
 _, err = execute("describe alias", system)
-assertEq(#err, 34)
+assertEq(type(err), "string")
 
-print(execute('combine commands (resize ":   " 100) (describe commands', system))
+execute('combine commands (resize ":   " 100) (describe commands', system)

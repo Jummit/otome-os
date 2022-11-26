@@ -4,6 +4,9 @@
 
 local strip = require("utils").strip
 local join = require("utils").join
+local filesystem = require "filesystem"
+local getFiles = filesystem.getFiles
+local read = filesystem.read
 
 local system = {
 	aliases = {},
@@ -12,19 +15,13 @@ local system = {
 }
 
 function system:getFiles()
-	local files = {}
-	local out = io.popen("ls -1 "..self.dir):read("a")
-	for file in out:gmatch("[^\n]+") do
-		table.insert(files, file)
-	end
-	return files
+	return getFiles(self.dir)
 end
 
 function system:read(file)
-	local f = io.open(self.dir..file)
-	if not f then return "no" end
+	local content = read(self.dir..file) or ""
 	local lines = {}
-	for line in f:read("a"):gmatch("[^\n]+") do
+	for line in content:gmatch("[^\n]+") do
 		table.insert(lines, line)
 	end
 	return lines
@@ -41,6 +38,7 @@ function system:execute(line)
     )
   elseif cmd == "DEL" then
     local old = self.files[param]
+		local trashName = tostring(math.random())
     self.history:addAction("Deleted "..param,
       function() self.files[param] = nil end,
       function() self.files[param] = old end
