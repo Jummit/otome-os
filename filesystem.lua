@@ -20,11 +20,25 @@ function filesystem.read(file)
 end
 
 function filesystem.move(file, to)
-  os.execute(string.format("mv %s %s", file, to))
+  os.execute(string.format("mv %s %s 2>/dev/null", file, to))
+end
+
+function filesystem.delete(file)
+	-- TODO: Maybe remove this safeguard later
+	filesystem.move(file, "/tmp")
+  -- os.execute(string.format("rm "..file))
 end
 
 function filesystem.copy(file, to)
   os.execute(string.format("cp %s %s", file, to))
+end
+
+function filesystem.write(name, content)
+	local file = io.open(name, "w")
+	if file then
+		file:write(content)
+		file:close()
+	end
 end
 
 return filesystem

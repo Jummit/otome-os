@@ -14,6 +14,20 @@ return function()
 		  doFun()
 		  print(name)
 		  self.reverts = {}
-		end
+		end,
+		undo = function(self)
+		  local toRevert = self.history[#self.history - #self.reverts]
+			if not toRevert then return end
+		  local revertAction = {name = "Undid "..toRevert.name, doFun = toRevert.undo, undo = toRevert.doFun}
+		  table.insert(self.reverts, revertAction)
+		  revertAction.doFun()
+			return revertAction
+		end,
+		redo = function(self)
+			if #self.reverts == 0 then return end
+	    local toRedo = table.remove(self.reverts)
+	    toRedo.undo()
+			return toRedo
+		end,
 	}
 end

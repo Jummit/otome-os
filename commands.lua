@@ -96,24 +96,22 @@ commands.range = {desc = "Generate a sequence of numbers", args = {"from", "To"}
   return t
 end}
 commands.history = {desc = "Show the history", exec = function(ctx)
-  return map(join(ctx.history, ctx.reverts), function(h) return h.name end)
+  return map(join(ctx.history.history, ctx.history.reverts), function(h) return h.name end)
 end}
 commands.undo = {desc = "Undo an operation", args = {{"The amount of operations to undo"}}, exec = function(ctx, num)
   local actions = {}
   for _ = 1, num == nil and 1 or num[1] do
-    local toRevert = ctx.history[#ctx.history - #ctx.reverts]
-    local revertAction = {name = "Undid "..toRevert.name, doFun = toRevert.undo, undo = toRevert.doFun}
-    table.insert(ctx.reverts, revertAction)
-    revertAction.doFun()
-    table.insert(actions, revertAction.name)
+    local undoAction = ctx.history:undo()
+    if not undoAction then break end
+    table.insert(actions, undoAction.name)
   end
   return actions
 end}
 commands.redo = {desc = "Redo an operation", args = {{"The amount of operations to redo"}}, exec = function(ctx, num)
   local actions = {}
   for _ = 1, num == nil and 1 or num[1] do
-    local toRedo = table.remove(ctx.reverts)
-    toRedo.undo()
+    local toRedo = ctx.history:redo()
+    if not toRedo then break end
     local name = toRedo.name:gsub("Undid ", "")
     table.insert(actions, name.." again")
   end

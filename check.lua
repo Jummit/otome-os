@@ -17,14 +17,13 @@ return function(command)
 		possibleArgs = math.huge
 		str = "One or more "..argList
   elseif type(argList) == "table" then
----@diagnostic disable-next-line: param-type-mismatch
 		local strList = {}
 		for _, arg in ipairs(argList) do
 			if type(arg) == "string" then
-				needed = (needed or 0) + 1
+				needed = needed + 1
 				table.insert(strList, arg)
 			elseif type(arg) == "table" then
-				possibleArgs = possibleArgs + 1
+				possibleArgs = (possibleArgs or 0) + 1
 				table.insert(strList, string.format("[%s]", arg[1]))
 			end
 		end
