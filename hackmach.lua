@@ -35,7 +35,7 @@ local function main()
         if #command.args < args then
           print(("Required %s parameters"):format(args))
         else
-          result = command.cmd(table.unpack(command.args), system)
+          result = command.cmd(system, table.unpack(command.args))
           for _, s in ipairs(result) do
             print(s)
           end

@@ -67,9 +67,6 @@ commands = {
   time = {desc = "Show the time", exec = function(_)
     return { os.time() }
   end},
-  calc = {desc = "Calculate a result using the given numbers", args = {"Operation", "Numbers"}, exec = function(_, m, v)
-    return {load("return "..table.concat(v(), m()[1]))()}
-  end},
   list = {desc = "Create a list", args = "Elements of the list", exec = function(_, ...)
     local l = {}
     for _, arg in ipairs(table.pack(...)) do
@@ -138,5 +135,26 @@ commands = {
     return keys(aliases)
   end},
 }
+
+local function addMath(char, fn)
+	commands[char] = {desc = string.format("Calculate %s with input", char), args = {"Numbers"}, exec = function(_, nums)
+		nums = nums()
+		local o
+		for _, n in ipairs(nums) do
+			if not o then
+				o = n
+			else
+				o = fn(o, n)
+			end
+		end
+		return {o}
+	end}
+end
+
+addMath("+", function(a,b) return a + b end)
+addMath("*", function(a,b) return a * b end)
+addMath("-", function(a,b) return a - b end)
+addMath("/", function(a,b) return a / b end)
+addMath("%", function(a,b) return a % b end)
 
 return commands

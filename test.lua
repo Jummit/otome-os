@@ -17,14 +17,17 @@ local function assertEq(a, b)
 	assert(a == b, string.format("%s ~= %s", a, b))
 end
 
--- local res = tryParse("help")
--- assertEq(res.cmd, commands.help.exec)
+local res = tryParse("help")
+assertEq(res.cmd, commands.help.exec)
 
--- res = tryParse([["test string"]])
--- assertEq(res.cmd()[1], "test string")
+res = tryParse([["test string"]])
+assertEq(res.cmd()[1], "test string")
 
--- res = tryParse([[write "test string" 'file]])
--- assertEq(res.args[1](), {"test string"})
+res = tryParse([[write "test string" 'file]])
+assertEq(res.args[1](), {"test string"})
 
-res = tryParse("calc + (list 5 3 7)")
-assertEq(res.args[2](), {"5", "3", "7"})
+res = tryParse("+ (list 5 3 7)")
+assertEq(res.cmd({}, table.unpack(res.args)), {5 + 3 + 7.0})
+
+res = tryParse("+ (list 5 3 7)")
+assertEq(res.args[1](), {"5", "3", "7"})

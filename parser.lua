@@ -41,22 +41,18 @@ return function(str, commands, aliases)
       table.insert(stack, {args = {}})
     elseif next == ")" then
       local sub = table.remove(stack)
-			print("sarg", sub.source)
-      table.insert(stack[#stack].args, function()
-        return sub.cmd(table.unpack(sub.args))
+      table.insert(stack[#stack].args, function(system)
+        return sub.cmd(system, table.unpack(sub.args))
       end)
 		elseif next == '"' then
 			next = str:match('"[^"]+"')
 			addWord(stack[#stack], next, commands, aliases)
     else
       next = str:match('[^%s%()"]+')
-      local cur = stack[#stack]
-			addWord(cur, next, commands, aliases)
+			addWord(stack[#stack], next, commands, aliases)
     end
-		-- print(next, #stack)
     str = strip(str:gsub(escape(next), "", 1))
   end
-	print(inspect(stack))
   return stack[1]
 end
 
