@@ -31,8 +31,8 @@ x
 TODO:
 Parameters
 Flow control: loops, conditions
-more stream manipulation commands
-immediate execution, folders
+immediate execution
+folders
 execute a file
 functions with parameters
 multiline (wait until everything is closed)
@@ -41,8 +41,10 @@ escaping in strings
 port this whole thing to rust
 fancy frontend with autocompletion
 make it a game? Or maybe an actual shell?
+test UTF8 support
 
 DONE: Tests, Strings, List sugar, Aliases, Error handling
+more stream manipulation commands
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
@@ -57,10 +59,20 @@ IN 5 write log
 **Example:**
 
 ```
-combine{sep="  ", all} commands (describe commands)
+combine{sep="  ", values='all} commands (describe commands)
 ```
 
-`all` is a boolean flag.
+Multiple keys can be assigned to one stream:
+
+```
+render{time,color,camera=(read 'config)} (read time=10 'cube)
+```
+
+is the same as
+
+```
+render{time=10,color='red,camera='normal} (read time=10 'cube)
+```
 
 ## Commands That Take Commands
 

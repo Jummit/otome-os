@@ -38,4 +38,12 @@ function utils.map(t, fun)
   })
 end
 
+function utils.copy(t)
+  local copy = {}
+  for k, v in ipairs(t) do
+    copy[k] = v
+  end
+  return copy
+end
+
 return utils

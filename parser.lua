@@ -2,6 +2,11 @@
 --     Parser     --
 --------------------
 
+-- describe ((combine "inpu") 'time)
+-- command {{command, string}, string}
+local function parseComponents(line)
+end
+
 local strip = require("utils").strip
 local escape = require("utils").escape
 
@@ -32,9 +37,6 @@ local function addWord(stack, word, commands)
 end
 
 return function(str, commands, aliases)
-	str = str:gsub("%a+", function(s)
-		return aliases[s] or s
-	end)
   local stack = {{}}
   while #str > 0 do
 		local next = str:sub(1,1)
@@ -52,8 +54,13 @@ return function(str, commands, aliases)
 			if err then return nil, err end
     else
       next = str:match('[^%s%()%[%]"]+')
-			local err = addWord(stack, next, commands)
-			if err then return nil, err end
+      if aliases[next] then
+        str = aliases[next]..str
+        -- error(aliases[next])
+      else
+  			local err = addWord(stack, next, commands)
+  			if err then return nil, err end
+      end
     end
     str = strip(str:gsub(escape(next), "", 1))
   end

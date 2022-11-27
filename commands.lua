@@ -3,6 +3,7 @@
 --------------------
 
 local utils = require("utils")
+local describeArgs = require "describeArgs"
 local keys, escape, map, join = utils.keys, utils.escape, utils.map, utils.join
 
 local commands = {}
@@ -20,20 +21,26 @@ commands.replace = {desc = "Find and replace inside the stream",
 	end
 }
 commands.combine = {desc = "Combine multiple streams",
-	args = "streams to combine", exec = function(_, sep, ...)
+	args = "streams to combine", exec = function(_, ...)
 	  local r = {}
 	  local streams = {...}
 	  for i = 1, math.min(table.unpack(map(streams, function(e) return #e end))) do
-	    table.insert(r, table.concat(map(streams, function(e) return e[i] end), sep[1]))
+	    table.insert(r, table.concat(map(streams, function(e) return e[i] end), " "))
 	  end
 	  return r
+	end
+}
+commands.sort = {desc = "Sort the stream",
+	args = {"words"}, exec = function(_, stream)
+    table.sort(stream)
+    return stream
 	end
 }
 -- {{"a", "abc"}, {"test", "longer"}}
 -- a   test
 -- abc longer
 commands.columns = {desc = "Combine multiple streams as columns",
-	args = "streams to combine", exec = function(_, ...)
+	args = "streams", exec = function(_, ...)
     local streams = map({...}, function(s)
       local max = 0
       for _, e in ipairs(s) do
@@ -54,8 +61,8 @@ commands.columns = {desc = "Combine multiple streams as columns",
     end
 	end
 }
-commands.splice = {desc = "Take one value from each input and splice them together",
-	args = "streams to splice", exec = function(_, ...)
+commands.splice = {desc = "",
+	args = "streams", exec = function(_, ...)
 	  local r = {}
 	  local streams = {...}
 	  for i = 1, math.max(table.unpack(map(streams, function(e) return #e end))) do
@@ -85,7 +92,7 @@ commands.new = {desc = "Create the given files", args = "file names", exec = fun
     return "NEW "..n
   end)
 end}
-commands.delete = {desc = "Delete the given files", args = "file names", exec = function(_, names)
+commands.delete = {desc = "Delete the given files", args = "files", exec = function(_, names)
   return map(names, function(n)
     return "DEL "..n
   end)
@@ -110,10 +117,10 @@ commands.list = {desc = "Create a list", args = "elements", exec = function(_, .
   end
   return l
 end}
-commands.write = {desc = "Write something into a file", args = {"text to write", "The files"}, exec = function(_, text, file)
+commands.write = {desc = "Write something into a file", args = {"text", "files"}, exec = function(_, text, file)
   return {"INS "..file[1].." "..table.concat(text, "\n")}
 end}
-commands.range = {desc = "Generate a sequence of numbers", args = {"from", "To"}, exec = function(_, from, to)
+commands.range = {desc = "Generate a sequence of numbers", args = {"from", "to", {"step"}}, exec = function(_, from, to)
   local t = {}
   for i = tonumber(from[1]), tonumber(to[1]) do
     table.insert(t, i)
@@ -123,7 +130,7 @@ end}
 commands.history = {desc = "Show the history", exec = function(ctx)
   return map(join(ctx.history.history, ctx.history.reverts), function(h) return h.name end)
 end}
-commands.undo = {desc = "Undo an operation", args = {{"The amount of operations to undo"}}, exec = function(ctx, num)
+commands.undo = {desc = "Undo an operation", args = {{"number of operations"}}, exec = function(ctx, num)
   local actions = {}
   for _ = 1, num == nil and 1 or num[1] do
     local undoAction = ctx.history:undo()
@@ -132,7 +139,7 @@ commands.undo = {desc = "Undo an operation", args = {{"The amount of operations 
   end
   return actions
 end}
-commands.redo = {desc = "Redo an operation", args = {{"The amount of operations to redo"}}, exec = function(ctx, num)
+commands.redo = {desc = "Redo an operation", args = {{"number of operations"}}, exec = function(ctx, num)
   local actions = {}
   for _ = 1, num == nil and 1 or num[1] do
     local toRedo = ctx.history:redo()
@@ -142,7 +149,7 @@ commands.redo = {desc = "Redo an operation", args = {{"The amount of operations 
   end
   return actions
 end}
-commands.describe = {desc = "Show help for the given commands", args = "the commands", exec = function(ctx, helpFor)
+commands.describe = {desc = "Show help for the given commands", args = "commands", exec = function(ctx, helpFor)
   return map(helpFor, function(c)
     if ctx.aliases[c] then
       return ctx.aliases[c]
@@ -150,13 +157,9 @@ commands.describe = {desc = "Show help for the given commands", args = "the comm
     return commands[c].desc
   end)
 end}
-commands.args = {desc = "Show args of a command", args = "the commands", exec = function(_, helpFor)
+commands.arguments = {desc = "Show args of a command", args = "commands", exec = function(_, helpFor)
   return map(helpFor, function(c)
-    local args = commands[c].args
-    if type(args) == "table" then
-      args = table.concat(args, ", ")
-    end
-    return args
+    return describeArgs(commands[c].args).str
   end)
 end}
 commands.alias = {desc = "Add a command alias", args = {"alias", "command"}, exec = function(ctx, alias, cmd)
@@ -166,7 +169,7 @@ end}
 commands.aliases = {desc = "Get a list of aliases", exec = function(ctx)
   return keys(ctx.aliases)
 end}
-commands.join = {desc = "Join a list of words", args = {"words", {"Separator"}}, exec = function(_, words, sep)
+commands.join = {desc = "Join a list of words", args = {"words", {"a separator"}}, exec = function(_, words, sep)
 	return {table.concat(words, (sep or {" "})[1])}
 end}
 
