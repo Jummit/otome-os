@@ -5,6 +5,7 @@
 local utils = require("utils")
 local describeArgs = require "describeArgs"
 local keys, escape, map, join = utils.keys, utils.escape, utils.map, utils.join
+local execute = require "execute"
 
 local commands = {}
 commands.commands = {desc = "Show a list of available commands",
@@ -74,14 +75,28 @@ commands.splice = {desc = "",
 	end
 }
 commands.read = {desc = "Show the content of the given files",
-	args = "file names", exec = function(ctx, names)
-	  local strs = {}
-	  for _, file in ipairs(names) do
-	    for _, k in ipairs(ctx:read(file) or {}) do
-	      table.insert(strs, k)
-	    end
-	  end
-	  return strs
+	args = "files", exec = function(ctx, names)
+	  return map(names, function(n) return ctx:read(n) end)
+	end
+}
+commands.run = {desc = "Run the given lines of code",
+	args = "lines", exec = function(ctx, lines)
+    return map(lines, function(l)
+      local output, err = execute(l, ctx)
+      if not output then return err end
+      return table.concat(output, "\n")
+    end)
+	end
+}
+commands.split = {desc = "Split the strings",
+	args = "strings", exec = function(_, strings)
+    local r = {}
+    for _, str in ipairs(strings) do
+      for elem in str:gmatch("[^\n]+") do
+        table.insert(r, elem)
+      end
+    end
+    return r
 	end
 }
 commands.files = {desc = "Show the available files", exec = function(ctx)
@@ -162,10 +177,14 @@ commands.arguments = {desc = "Show args of a command", args = "commands", exec =
     return describeArgs(commands[c].args).str
   end)
 end}
-commands.alias = {desc = "Add a command alias", args = {"alias", "command"}, exec = function(ctx, alias, cmd)
-  ctx.aliases[alias[1]] = cmd[1]
-  return {}
-end}
+commands.alias = {desc = "Add a command alias", args = {"stream of commands and their aliases"},
+  exec = function(ctx, aliases)
+    for num = 1, #aliases, 2 do
+      ctx.aliases[aliases[num]] = aliases[num + 1]
+    end
+    return {}
+  end
+}
 commands.aliases = {desc = "Get a list of aliases", exec = function(ctx)
   return keys(ctx.aliases)
 end}

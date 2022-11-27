@@ -7,7 +7,18 @@
 local system = require "system"
 local execute = require "execute"
 
+local function showResult(result, err)
+  if result then
+    for _, s in ipairs(result) do
+      print(s)
+    end
+  else
+    print(err)
+  end
+end
+
 local function main()
+  showResult(execute("run (split (read 'start))", system))
   local lastResult
   while true do
     io.write("> ")
@@ -18,14 +29,8 @@ local function main()
       end
     else
       local result, err = execute(line, system)
-      if result then
-        lastResult = result
-        for _, s in ipairs(result) do
-          print(s)
-        end
-      else
-        print(err)
-      end
+      showResult(result, err)
+      lastResult = result or lastResult
     end
   end
 end

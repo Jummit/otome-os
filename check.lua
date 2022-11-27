@@ -2,10 +2,9 @@
 -- check Commands For Errors --
 -------------------------------
 
-local commands = require "commands"
 local describeArgs = require "describeArgs"
 
-return function(command)
+return function(command, commands)
   if not commands[command.source] then
 		return
 	end

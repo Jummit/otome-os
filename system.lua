@@ -15,6 +15,7 @@ local system = {
 	dir = "/home/jummit/.local/share/otomeos/",
 	trash = "/home/jummit/.local/share/otomeos/trash/",
 	history = require("history")(),
+  commands = require "commands",
 }
 
 function system:getFiles()
@@ -22,12 +23,7 @@ function system:getFiles()
 end
 
 function system:read(file)
-	local content = read(self.dir..file) or ""
-	local lines = {}
-	for line in content:gmatch("[^\n]+") do
-		table.insert(lines, line)
-	end
-	return lines
+	return read(self.dir..file) or ""
 end
 
 function system:execute(line)

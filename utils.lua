@@ -28,14 +28,22 @@ function utils.keys(t)
   return list
 end
 
+-- function utils.map(t, fun)
+--   local len = #t
+--   return setmetatable({}, {__index = function(_, k)
+--     if t[k] == nil then return nil end
+--     return fun(t[k])
+--   end,
+--   __len = function() return len end
+--   })
+-- end
+
 function utils.map(t, fun)
-  local len = #t
-  return setmetatable({}, {__index = function(_, k)
-    if t[k] == nil then return nil end
-    return fun(t[k])
-  end,
-  __len = function() return len end
-  })
+  local r = {}
+  for k, v in pairs(t) do
+    r[k] = fun(v)
+  end
+  return r
 end
 
 function utils.copy(t)
@@ -44,6 +52,14 @@ function utils.copy(t)
     copy[k] = v
   end
   return copy
+end
+
+function utils.lines(text)
+  local lines = {}
+	for line in text:gmatch("[^\n]+") do
+		table.insert(lines, line)
+	end
+  return lines
 end
 
 return utils
