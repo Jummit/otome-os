@@ -8,8 +8,6 @@ local filesystem = require "filesystem"
 local getFiles = filesystem.getFiles
 local read = filesystem.read
 local copy = filesystem.copy
-local move = filesystem.move
-local delete = filesystem.delete
 local write = filesystem.write
 
 local system = {
@@ -40,18 +38,18 @@ function system:execute(line)
   if cmd == "NEW" then
     self.history:addAction("Created "..param,
       function()
-        move(file, self.trash..tmpName)
+        os.rename(file, self.trash..tmpName)
         write(file, "")
       end,
       function()
-        delete(file)
-        move(self.trash..tmpName, file)
+        os.remove(file)
+        os.rename(self.trash..tmpName, file)
       end
     )
   elseif cmd == "DEL" then
     self.history:addAction("Deleted "..param,
-      function() move(file, tmpName) end,
-      function() move(tmpName, file) end
+      function() os.rename(file, tmpName) end,
+      function() os.rename(tmpName, file) end
     )
   elseif cmd == "MOV" then
     -- TODO: Implement move

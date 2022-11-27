@@ -29,10 +29,35 @@ commands.combine = {desc = "Combine multiple streams",
 	  return r
 	end
 }
+-- {{"a", "abc"}, {"test", "longer"}}
+-- a   test
+-- abc longer
+commands.columns = {desc = "Combine multiple streams as columns",
+	args = "streams to combine", exec = function(_, ...)
+    local streams = map({...}, function(s)
+      local max = 0
+      for _, e in ipairs(s) do
+        max = math.max(#e, max)
+      end
+      return map(s, function(e)
+        return e..string.rep(" ", max - #e)
+      end)
+    end)
+    local r = {}
+    for i = 1, 100 do
+      local sub = {}
+      for _, s in ipairs(streams) do
+        if not s[i] then return r end
+        table.insert(sub, s[i])
+      end
+      table.insert(r, table.concat(sub, " "))
+    end
+	end
+}
 commands.splice = {desc = "Take one value from each input and splice them together",
 	args = "streams to splice", exec = function(_, ...)
 	  local r = {}
-	  local streams = map({...}, function(a) return a end)
+	  local streams = {...}
 	  for i = 1, math.max(table.unpack(map(streams, function(e) return #e end))) do
 	    for _, stream in ipairs(streams) do
 	      table.insert(r, stream[i])
@@ -134,7 +159,7 @@ commands.args = {desc = "Show args of a command", args = "the commands", exec = 
     return args
   end)
 end}
-commands.alias = {desc = "Add a command alias", args = {"alias", "Command"}, exec = function(ctx, alias, cmd)
+commands.alias = {desc = "Add a command alias", args = {"alias", "command"}, exec = function(ctx, alias, cmd)
   ctx.aliases[alias[1]] = cmd[1]
   return {}
 end}

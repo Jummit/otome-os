@@ -44,3 +44,4 @@ _, err = execute("describe alias", system)
 assertEq(type(err), "string")
 
 execute('combine commands (resize ":   " 100) (describe commands', system)
+execute("columns 'a 'b", system)

@@ -29,11 +29,18 @@ Edit/Debug/Fix cycle:
 x
 
 TODO:
+Parameters
 Flow control: loops, conditions
+more stream manipulation commands
 immediate execution, folders
 execute a file
 functions with parameters
 multiline (wait until everything is closed)
+save history to disk
+escaping in strings
+port this whole thing to rust
+fancy frontend with autocompletion
+make it a game? Or maybe an actual shell?
 
 DONE: Tests, Strings, List sugar, Aliases, Error handling
 
@@ -43,4 +50,40 @@ Commands should execute instantly. Tasks can be scheduled by the OS:
 
 ```
 IN 5 write log
+```
+
+## Command Parameters
+
+**Example:**
+
+```
+combine{sep="  ", all} commands (describe commands)
+```
+
+`all` is a boolean flag.
+
+## Commands That Take Commands
+
+Commands can be passed as strings, or using the special syntax that will check
+if the command is valid:
+
+```
+alias 'ls "files"
+```
+
+```
+alias 'ls <show files>
+```
+
+Syntax error: show is not a command.
+
+## Functions
+
+Functions are user-defined commands. They take parameters, input streams and
+generate an output stream.
+
+**Example:**
+
+```
+function{sep} 'print $1 
 ```
