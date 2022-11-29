@@ -202,12 +202,12 @@ local function addMath(char, fn)
 		local o
 		for _, n in ipairs(nums) do
 			if not o then
-				o = n
+				o = tonumber(n)
 			else
-				o = fn(o, n)
+				o = fn(o, tonumber(n))
 			end
 		end
-		return {o}
+		return {tostring(o)}
 	end}
 end
 

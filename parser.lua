@@ -54,12 +54,15 @@ function parse(str, commands, aliases)
 			local err = addWord(stack, next, commands)
 			if err then return nil, err end
     elseif next == "{" then
+      local last = stack[#stack]
+      local lastArgs = last.args
+      last = lastArgs[#lastArgs] or last
       local args = str:match("[^}]+"):sub(2)
+      last.config = last.config or {}
       for k, v in args:gmatch("(%w+)%s?=%s?(%S+)") do
-        stack[#stack].config = stack[#stack].config or {}
         local cmd, err = parse(v, commands, aliases)
         if not cmd then return nil, err end
-        stack[#stack].config[k] = cmd
+        last.config[k] = cmd
       end
       next = str:match("[^}]+}")
     else

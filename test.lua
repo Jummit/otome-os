@@ -15,26 +15,28 @@ local function tryParse(str, aliases)
 	return res
 end
 
-local function assertEq(a, b)
+local function assertEq(a, b, m)
 	a, b = inspect(a), inspect(b)
+	if a ~= b and m then print("Failure in '"..m.."':") end
 	assert(a == b, string.format("%s ~= %s", a, b))
 end
 
 local function assertExec(line, result)
 	local res, err = execute(line, system)
 	if err then error(err) end
-	assertEq(copy(res), copy(result))
+	assertEq(copy(res), copy(result), line)
 end
 
+local function all()
 local res = tryParse("describe")
 assertEq(res.cmd, commands.describe.exec)
 assertExec([["test string"]], {"test string"})
 assertExec([[write "more string" 'file]], {"INS file more string"})
-assertExec("+ (list 5 3 7)", {5 + 3 + 7.0})
-assertExec("+ [5 3 7]", {5 + 3 + 7.0})
+assertExec("+ (list 5 3 7)", {"15"})
+assertExec("+ [5 3 7]", {"15"})
 
 system.aliases.onetoten = "+ (range 1 10)"
-assertExec("onetoten", {55})
+assertExec("onetoten", {"55"})
 
 assertExec("describe 'onetoten", {"+ (range 1 10)"})
 
@@ -52,3 +54,12 @@ assertExec("arguments 'combine", { "one or more streams to combine"})
 assertExec([[run "'test"]], { "test"})
 assertExec("time{part = 'day time=-1}", { tostring(os.date("*t").day)})
 assertExec("time{ part = 'day time=-1}", { tostring(os.date("*t").day)})
+assertExec("- ['5 5]", {"0"})
+assertExec("list time{part='year}", {tostring(os.date("*t").year)})
+end
+
+return {
+	all = all,
+	assertEq = assertEq,
+	assertExec = assertExec,
+}

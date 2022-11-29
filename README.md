@@ -29,7 +29,6 @@ Edit/Debug/Fix cycle:
 x
 
 TODO:
-Parameters
 Flow control: loops, conditions
 immediate execution
 folders
@@ -40,6 +39,7 @@ escaping in strings
 eliminate all side effects from commands
 catogories for commands
 job control (schedule tasks)
+difference between number and string streams: type checking
 port this whole thing to rust | use https://github.com/osch/lua-nocurses
 autocompletion
 fancy frontend with autocompletion
@@ -49,6 +49,7 @@ UTF8 support
 DONE: Tests, Strings, List sugar, Aliases, Error handling
 more stream manipulation commands
 execute a file
+Parameters (config options for commands)
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
