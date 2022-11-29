@@ -4,6 +4,8 @@
 
 local strip = require("utils").strip
 local join = require("utils").join
+local parse = require "parser"
+local check = require "check"
 local filesystem = require "filesystem"
 local getFiles = filesystem.getFiles
 local read = filesystem.read
@@ -27,8 +29,7 @@ function system:read(file)
 end
 
 function system:execute(line)
-  local s = line:find(" ")
-  local cmd, param = line:sub(1, s - 1), line:sub(s + 1)
+  local cmd, param, data = line:match("(%S+) (.-) (.+)")
   local tmpName = tostring(math.random())
   local file = self.dir..param
   if cmd == "NEW" then
@@ -58,6 +59,14 @@ function system:execute(line)
       function() self.files[file] = join(old or {}, {param}) end,
       function() self.files[file] = old end
     )
+  elseif cmd == "FUN" then
+    local parsedCmd, err = parse(data, self.commands, self.functions)
+    if not parsedCmd then return err end
+    err = check(parsedCmd, self.commands)
+  	if err then return err end
+    parsedCmd.source = data
+    print("Registered function "..param)
+    self.functions[param] = parsedCmd
   end
 end
 

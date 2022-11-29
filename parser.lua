@@ -44,10 +44,8 @@ local function parseFunction(str, commands, functions)
   err = check(cmd, commands)
 	if err then return nil, err end
   return {
-    cmd = function(ctx)
-      cmd.source = body
-      ctx.functions[name] = cmd
-      return {string.format("Function %s declared", name)}
+    cmd = function(_)
+      return {string.format("FUN %s %s", name, body)}
     end,
     args = {},
   }

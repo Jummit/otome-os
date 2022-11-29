@@ -29,14 +29,15 @@ Edit/Debug/Fix cycle:
 x
 
 TODO:
-define functions with config and parameters
 add config to commands where it makes sense
 type check config
 Flow control: loops, conditions
 immediate execution
 folders and then also paths sigh.
 multiline (wait until everything is closed)
+define functions with config and parameters
 save history to disk
+pass functions to functions
 escaping in strings
 eliminate all side effects from commands
 catogories for commands
