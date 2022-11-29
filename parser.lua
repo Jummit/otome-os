@@ -86,6 +86,10 @@ function parse(str, commands, aliases, functions)
         last.config[k] = cmd
       end
       next = str:match("[^}]+}")
+    elseif next == "$" then
+      next = str:match("%$%d+")
+    	local cur = stack[#stack]
+      table.insert(cur.args, {source = next, arg = tonumber(next:match("%d+"))})
     else
       next = str:match('[^%s%()%[%]{"]+')
       if aliases[next] then
