@@ -4,6 +4,7 @@
 
 local strip = require("utils").strip
 local escape = require("utils").escape
+local check = require "check"
 
 local function cmdFromWord(word, commands)
   if word:sub(1, 1) == "'" or tonumber(word) then
@@ -37,9 +38,11 @@ end
 local parse
 
 local function parseFunction(str, commands, aliases, functions)
-  local name, body = str:match("function (%w+)%s?%((.+)%)")
+  local name, body = str:match("function (%w+)%s?%((.+)%)$")
   local cmd, err = parse(body, commands, aliases, functions)
-  if not cmd then return err end
+  if not cmd then return nil, err end
+  err = check(cmd, commands)
+	if err then return nil, err end
   return {
     cmd = function(ctx)
       ctx.functions[name] = cmd
@@ -59,6 +62,9 @@ function parse(str, commands, aliases, functions)
     if next == "(" then
       table.insert(stack, {})
     elseif next == ")" then
+      if #stack == 1 then
+        return nil, "Excess closing parenthesis"
+      end
       table.insert(stack[#stack - 1].args, table.remove(stack))
     elseif next == "[" then
       table.insert(stack, {args = {}, cmd = commands.list.exec, source = "Square brackets"})
@@ -90,6 +96,9 @@ function parse(str, commands, aliases, functions)
       end
     end
     str = strip(str:gsub(escape(next), "", 1))
+  end
+  if #stack > 1 then
+    return nil, "Mismatched parenthesis"
   end
   return stack[1]
 end

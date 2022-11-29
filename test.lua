@@ -25,7 +25,9 @@ local function assertExec(line, result)
 	local res, err = execute(line, system)
 	if err then error(err) end
 	if not res then error(string.format("Command didn't return a value: '%s'", line)) end
-	assertEq(copy(res), copy(result), line)
+	if result then
+		assertEq(copy(res), copy(result), line)
+	end
 end
 
 local function all()
@@ -59,9 +61,11 @@ assertExec("- ['5 5]", {"0"})
 assertExec("list time{part='year}", {tostring(os.date("*t").year)})
 assertExec("function day (time {part='day})", {"Function day declared"})
 assertExec("day", {tostring(os.date("*t").day)})
+assertExec("sort day", {tostring(os.date("*t").day)})
+assertExec("function help (sort (columns commands (arguments commands) (describe commands)))", {"Function help declared"})
+assertExec("sort help")
 -- assertExec('function myjoin{sep = "  "} (join $1 sep)', "")
 end
-
 return {
 	all = all,
 	assertEq = assertEq,

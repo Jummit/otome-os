@@ -10,15 +10,15 @@ function resolveCommand(command, system)
 		table.insert(args, argCommand)
 	end
 	command.args = args
+	local fun = system.functions[command.source]
+	if fun then
+		return resolveCommand(fun, system)
+	end
   local err = check(command, system.commands)
 	if err then return nil, err end
 	local cfg = {}
 	for k, v in pairs(command.config or {}) do
 		cfg[k] = resolveCommand(v, system)
-	end
-	local fun = system.functions[command.source]
-	if fun then
-		return resolveCommand(fun, system)
 	end
   return command.cmd(setmetatable({cfg=cfg}, {__index=system}), table.unpack(args))
 end
