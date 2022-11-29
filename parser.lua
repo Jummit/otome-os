@@ -37,9 +37,9 @@ end
 
 local parse
 
-local function parseFunction(str, commands, aliases, functions)
+local function parseFunction(str, commands, functions)
   local name, body = str:match("function (%w+)%s?%((.+)%)$")
-  local cmd, err = parse(body, commands, aliases, functions)
+  local cmd, err = parse(body, commands, functions)
   if not cmd then return nil, err end
   err = check(cmd, commands)
 	if err then return nil, err end
@@ -52,9 +52,9 @@ local function parseFunction(str, commands, aliases, functions)
   }
 end
 
-function parse(str, commands, aliases, functions)
+function parse(str, commands, functions)
   if str:find("function") == 1 then
-    return parseFunction(str, commands, aliases, functions)
+    return parseFunction(str, commands, functions)
   end
   local stack = {{}}
   while #str > 0 do
@@ -81,7 +81,7 @@ function parse(str, commands, aliases, functions)
       local args = str:match("[^}]+"):sub(2)
       last.config = last.config or {}
       for k, v in args:gmatch("(%w+)%s?=%s?(%S+)") do
-        local cmd, err = parse(v, commands, aliases, functions)
+        local cmd, err = parse(v, commands, functions)
         if not cmd then return nil, err end
         last.config[k] = cmd
       end
@@ -92,12 +92,8 @@ function parse(str, commands, aliases, functions)
       table.insert(cur.args, {source = next, arg = tonumber(next:match("%d+"))})
     else
       next = str:match('[^%s%()%[%]{"]+')
-      if aliases[next] then
-        str = aliases[next]..str
-      else
-  			local err = addWord(stack, next, commands, functions)
-  			if err then return nil, err end
-      end
+			local err = addWord(stack, next, commands, functions)
+			if err then return nil, err end
     end
     str = strip(str:gsub(escape(next), "", 1))
   end

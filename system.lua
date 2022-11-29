@@ -11,7 +11,6 @@ local copy = filesystem.copy
 local write = filesystem.write
 
 local system = {
-	aliases = {},
 	dir = "/home/jummit/.local/share/otomeos/",
 	trash = "/home/jummit/.local/share/otomeos/trash/",
 	history = require("history")(),

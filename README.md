@@ -29,7 +29,6 @@ Edit/Debug/Fix cycle:
 x
 
 TODO:
-define functions with parameters
 define functions with config and parameters
 add config to commands where it makes sense
 type check config
@@ -43,7 +42,6 @@ eliminate all side effects from commands
 catogories for commands
 job control (schedule tasks)
 refactor this mess. maybe add type hints?
-remove aliases in favor of functions
 difference between number, bool and string streams: type checking
 port this whole thing to rust | use https://github.com/osch/lua-nocurses
 autocompletion wow (need a custom text input for that)
@@ -56,12 +54,14 @@ UTF8 support
 DONE: Tests
 Strings
 List sugar
-Aliases
+Aliases (removed in favor of functions)
 Error handling
 stream manipulation commands
 execute a file or string
 Parameters (config options for commands)
 define functions
+define functions with parameters
+remove aliases in favor of functions
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
@@ -91,21 +91,6 @@ is the same as
 render{time=10,color='red,camera='normal} (read time=10 'cube)
 ```
 
-## Commands That Take Commands
-
-Commands can be passed as strings, or using the special syntax that will check
-if the command is valid:
-
-```
-alias 'ls "files"
-```
-
-```
-alias 'ls <show files>
-```
-
-Syntax error: show is not a command.
-
 ## Functions
 
 Functions are user-defined commands. They take parameters, input streams and
@@ -117,4 +102,4 @@ generate an output stream.
 function 'myjoin{sep = "  "} (join $1 sep) 
 ```
 
-These should replace aliases.
+These should replace aliases. (DONE)

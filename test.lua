@@ -7,8 +7,8 @@ local system = require "system"
 local execute = require "execute"
 local copy = require("utils").copy
 
-local function tryParse(str, aliases)
-	local res, err = parse(str, commands, aliases or {}, system.functions)
+local function tryParse(str)
+	local res, err = parse(str, commands, system.functions)
 	if not res then
 		error(err)
 	end
@@ -38,17 +38,12 @@ assertExec([[write "more string" 'file]], {"INS file more string"})
 assertExec("+ (list 5 3 7)", {"15"})
 assertExec("+ [5 3 7]", {"15"})
 
-system.aliases.onetoten = "+ (range 1 10)"
-assertExec("onetoten", {"55"})
-
-assertExec("describe 'onetoten", {"+ (range 1 10)"})
-
 execute("read 'test.lua", system)
 
 local _, err = execute("describe", system)
 assertEq(type(err), "string")
 
-_, err = execute("describe alias", system)
+_, err = execute("describe time", system)
 assertEq(type(err), "string")
 
 execute('combine commands (resize ":   " 100) (describe commands', system)

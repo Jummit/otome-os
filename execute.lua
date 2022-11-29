@@ -35,7 +35,7 @@ function resolveCommand(command, system, functionParameters)
 end
 
 local function execute(line, system)
-  local command, err = parse(line, system.commands, system.aliases, system.functions)
+  local command, err = parse(line, system.commands, system.functions)
   if not command then
     return nil, err
   end

@@ -13,6 +13,11 @@ commands.commands = {desc = "Show a list of available commands",
 	  return keys(commands)
 	end
 }
+commands.functions = {desc = "Show a list of defined functions",
+	exec = function(ctx)
+	  return keys(cxt.functions)
+	end
+}
 commands.replace = {desc = "Find and replace inside the stream",
 	args = {"text", "old", "new"},
 	exec = function(_, inp, from, to)
@@ -198,8 +203,8 @@ commands.redo = {desc = "Redo an operation", args = {{"number of operations"}}, 
 end}
 commands.describe = {desc = "Show help for the given commands", args = "commands", exec = function(ctx, helpFor)
   return map(helpFor, function(c)
-    if ctx.aliases[c] then
-      return ctx.aliases[c]
+    if ctx.functions[c] then
+      return ctx.functions[c].source
     end
     return commands[c].desc
   end)
@@ -208,17 +213,6 @@ commands.arguments = {desc = "Show args of a command", args = "commands", exec =
   return map(helpFor, function(c)
     return describeArgs(commands[c].args).str
   end)
-end}
-commands.alias = {desc = "Add a command alias", args = {"commands and their alias"},
-  exec = function(ctx, aliases)
-    for num = 1, #aliases, 2 do
-      ctx.aliases[aliases[num]] = aliases[num + 1]
-    end
-    return {}
-  end
-}
-commands.aliases = {desc = "Get a list of aliases", exec = function(ctx)
-  return keys(ctx.aliases)
 end}
 commands.join = {desc = "Join a list of words", args = {"words", {"a separator"}}, exec = function(_, words, sep)
 	return {table.concat(words, (sep or {" "})[1])}
