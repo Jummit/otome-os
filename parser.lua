@@ -36,7 +36,8 @@ local function addWord(stack, word, commands)
   end
 end
 
-return function(str, commands, aliases)
+local parse
+function parse(str, commands, aliases)
   local stack = {{}}
   while #str > 0 do
 		local next = str:sub(1,1)
@@ -52,11 +53,19 @@ return function(str, commands, aliases)
 			next = str:match('"[^"]+"')
 			local err = addWord(stack, next, commands)
 			if err then return nil, err end
+    elseif next == "{" then
+      local args = str:match("[^}]+"):sub(2)
+      for k, v in args:gmatch("(%w+)%s?=%s?(%S+)") do
+        stack[#stack].config = stack[#stack].config or {}
+        local cmd, err = parse(v, commands, aliases)
+        if not cmd then return nil, err end
+        stack[#stack].config[k] = cmd
+      end
+      next = str:match("[^}]+}")
     else
-      next = str:match('[^%s%()%[%]"]+')
+      next = str:match('[^%s%()%[%]{"]+')
       if aliases[next] then
         str = aliases[next]..str
-        -- error(aliases[next])
       else
   			local err = addWord(stack, next, commands)
   			if err then return nil, err end
@@ -67,3 +76,4 @@ return function(str, commands, aliases)
   return stack[1]
 end
 
+return parse

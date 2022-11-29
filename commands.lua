@@ -120,8 +120,12 @@ commands.resize = {desc = "Extend the stream", args = {"amount", "stream"}, exec
   end
   return o
 end}
-commands.time = {desc = "Show the time", exec = function(_)
-  return { os.time() }
+commands.time = {desc = "Show the time", exec = function(ctx)
+  local part = (ctx.cfg.part or {})[1]
+  if part then
+    return {tostring(os.date("*t")[part])}
+  end
+  return { tostring(os.date()) }
 end}
 commands.list = {desc = "Create a list", args = "elements", exec = function(_, ...)
   local l = {}
@@ -177,7 +181,7 @@ commands.arguments = {desc = "Show args of a command", args = "commands", exec =
     return describeArgs(commands[c].args).str
   end)
 end}
-commands.alias = {desc = "Add a command alias", args = {"stream of commands and their aliases"},
+commands.alias = {desc = "Add a command alias", args = {"commands and their alias"},
   exec = function(ctx, aliases)
     for num = 1, #aliases, 2 do
       ctx.aliases[aliases[num]] = aliases[num + 1]

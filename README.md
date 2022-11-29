@@ -33,18 +33,22 @@ Parameters
 Flow control: loops, conditions
 immediate execution
 folders
-execute a file
 functions with parameters
 multiline (wait until everything is closed)
 save history to disk
 escaping in strings
-port this whole thing to rust
+eliminate all side effects from commands
+catogories for commands
+job control (schedule tasks)
+port this whole thing to rust | use https://github.com/osch/lua-nocurses
+autocompletion
 fancy frontend with autocompletion
 make it a game? Or maybe an actual shell?
-test UTF8 support
+UTF8 support
 
 DONE: Tests, Strings, List sugar, Aliases, Error handling
 more stream manipulation commands
+execute a file
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
@@ -97,5 +101,7 @@ generate an output stream.
 **Example:**
 
 ```
-function{sep} 'print $1 
+function 'myjoin{sep = "  "} (join $1 sep) 
 ```
+
+These should replace aliases.

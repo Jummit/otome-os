@@ -48,7 +48,7 @@ end
 
 function utils.copy(t)
   local copy = {}
-  for k, v in ipairs(t) do
+  for k, v in pairs(t) do
     copy[k] = v
   end
   return copy

@@ -12,7 +12,11 @@ function resolveCommand(command, system)
 	command.args = args
   local err = check(command, system.commands)
 	if err then return nil, err end
-  return command.cmd(system, table.unpack(args))
+	local cfg = {}
+	for k, v in pairs(command.config or {}) do
+		cfg[k] = resolveCommand(v, system)
+	end
+  return command.cmd(setmetatable({cfg=cfg}, {__index=system}), table.unpack(args))
 end
 
 local function execute(line, system)
