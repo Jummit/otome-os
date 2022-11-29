@@ -2,11 +2,6 @@
 --     Parser     --
 --------------------
 
--- describe ((combine "inpu") 'time)
--- command {{command, string}, string}
-local function parseComponents(line)
-end
-
 local strip = require("utils").strip
 local escape = require("utils").escape
 

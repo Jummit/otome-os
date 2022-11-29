@@ -29,26 +29,36 @@ Edit/Debug/Fix cycle:
 x
 
 TODO:
+define functions with parameters
+define functions with config and parameters
+add config to commands where it makes sense
+type check config
 Flow control: loops, conditions
 immediate execution
-folders
-functions with parameters
+folders and then also paths sigh.
 multiline (wait until everything is closed)
 save history to disk
 escaping in strings
 eliminate all side effects from commands
 catogories for commands
 job control (schedule tasks)
-difference between number and string streams: type checking
+remove aliases in favor of functions
+difference between number, bool and string streams: type checking
 port this whole thing to rust | use https://github.com/osch/lua-nocurses
-autocompletion
+autocompletion wow (need a custom text input for that)
+cache commands
+write something usefull with this
 fancy frontend with autocompletion
 make it a game? Or maybe an actual shell?
 UTF8 support
 
-DONE: Tests, Strings, List sugar, Aliases, Error handling
-more stream manipulation commands
-execute a file
+DONE: Tests
+Strings
+List sugar
+Aliases
+Error handling
+stream manipulation commands
+execute a file or string
 Parameters (config options for commands)
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.

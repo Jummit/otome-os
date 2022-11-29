@@ -37,9 +37,20 @@ commands.sort = {desc = "Sort the stream",
     return stream
 	end
 }
--- {{"a", "abc"}, {"test", "longer"}}
--- a   test
--- abc longer
+commands.find = {desc = "Find text in a stream",
+	args = {"query", "words"}, exec = function(_, query, stream)
+    local n = {}
+    for _, w in ipairs(stream) do
+      for _, q in ipairs(query) do
+        if w:find(q) then
+          table.insert(n, w)
+          break
+        end
+      end
+    end
+    return n
+	end
+}
 commands.columns = {desc = "Combine multiple streams as columns",
 	args = "streams", exec = function(_, ...)
     local streams = map({...}, function(s)
