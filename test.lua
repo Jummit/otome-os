@@ -60,6 +60,8 @@ assertExec("sort day", {tostring(os.date("*t").day)})
 assertExec("function help (sort (columns commands (arguments commands) (describe commands)))", {"Function help declared"})
 assertExec("sort help")
 -- assertExec('function myjoin{sep = "  "} (join $1 sep)', "")
+assertExec("function two (list $1 $2)")
+assertExec("two 1 2", {"1", "2"})
 end
 return {
 	all = all,

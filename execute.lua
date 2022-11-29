@@ -20,7 +20,6 @@ function resolveCommand(command, system, functionParameters)
 		if err then return nil, err end
 		table.insert(args, argCommand)
 	end
-	command.args = args
 	local fun = system.functions[command.source]
 	if fun then
 		return resolveCommand(fun, system, args)
