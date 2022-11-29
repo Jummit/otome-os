@@ -45,6 +45,7 @@ local function parseFunction(str, commands, functions)
 	if err then return nil, err end
   return {
     cmd = function(ctx)
+      cmd.source = body
       ctx.functions[name] = cmd
       return {string.format("Function %s declared", name)}
     end,
@@ -53,7 +54,7 @@ local function parseFunction(str, commands, functions)
 end
 
 function parse(str, commands, functions)
-  if str:find("function") == 1 then
+  if str:find("function ") == 1 then
     return parseFunction(str, commands, functions)
   end
   local stack = {{}}

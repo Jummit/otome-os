@@ -15,7 +15,7 @@ commands.commands = {desc = "Show a list of available commands",
 }
 commands.functions = {desc = "Show a list of defined functions",
 	exec = function(ctx)
-	  return keys(cxt.functions)
+	  return keys(ctx.functions)
 	end
 }
 commands.replace = {desc = "Find and replace inside the stream",
@@ -205,6 +205,8 @@ commands.describe = {desc = "Show help for the given commands", args = "commands
   return map(helpFor, function(c)
     if ctx.functions[c] then
       return ctx.functions[c].source
+    elseif not commands[c] then
+      return ""
     end
     return commands[c].desc
   end)

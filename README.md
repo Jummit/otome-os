@@ -103,3 +103,12 @@ function 'myjoin{sep = "  "} (join $1 sep)
 ```
 
 These should replace aliases. (DONE)
+
+## Passing Functions to Functions
+
+Functions can take other functions as parameters and call them:
+
+```
+function about (combine $1 (resize ": " 100) ($2 $1))
+about functions :describe
+```
