@@ -8,7 +8,7 @@ local execute = require "execute"
 local copy = require("utils").copy
 
 local function tryParse(str, aliases)
-	local res, err = parse(str, commands, aliases or {})
+	local res, err = parse(str, commands, aliases or {}, system.functions)
 	if not res then
 		error(err)
 	end
@@ -24,6 +24,7 @@ end
 local function assertExec(line, result)
 	local res, err = execute(line, system)
 	if err then error(err) end
+	if not res then error(string.format("Command didn't return a value: '%s'", line)) end
 	assertEq(copy(res), copy(result), line)
 end
 
@@ -56,6 +57,9 @@ assertExec("time{part = 'day time=-1}", { tostring(os.date("*t").day)})
 assertExec("time{ part = 'day time=-1}", { tostring(os.date("*t").day)})
 assertExec("- ['5 5]", {"0"})
 assertExec("list time{part='year}", {tostring(os.date("*t").year)})
+assertExec("function day (time {part='day})", {"Function day declared"})
+assertExec("day", {tostring(os.date("*t").day)})
+-- assertExec('function myjoin{sep = "  "} (join $1 sep)', "")
 end
 
 return {

@@ -37,6 +37,23 @@ commands.sort = {desc = "Sort the stream",
     return stream
 	end
 }
+commands.when = {desc = "Output if stream has values",
+	args = {"bool", "stream"}, exec = function(_, bool, stream)
+    if bool[1] and #bool[1] > 0 then
+      return stream
+    end
+    return {}
+	end
+}
+commands.reverse = {desc = "Invert the stream",
+	args = {"stream"}, exec = function(_, stream)
+    local n = {}
+    for _ = 1, #stream do
+      table.insert(n, table.remove(stream, #stream))
+    end
+    return n
+	end
+}
 commands.find = {desc = "Find text in a stream",
 	args = {"query", "words"}, exec = function(_, query, stream)
     local n = {}

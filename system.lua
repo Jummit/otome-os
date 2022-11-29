@@ -16,6 +16,7 @@ local system = {
 	trash = "/home/jummit/.local/share/otomeos/trash/",
 	history = require("history")(),
   commands = require "commands",
+  functions = {},
 }
 
 function system:getFiles()

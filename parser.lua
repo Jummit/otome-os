@@ -8,22 +8,25 @@ local escape = require("utils").escape
 local function cmdFromWord(word, commands)
   if word:sub(1, 1) == "'" or tonumber(word) then
     local inner = word:gsub("'", "", 1)
-    return {cmd = function() return {inner} end, source = word}
+    return function() return {inner} end
 	elseif word:sub(1, 1) == '"' then
 		local inner = word:sub(2, -2)
-    return {cmd = function() return {inner} end, source = word}
+    return function() return {inner} end
   elseif commands[word] then
-    return {cmd = commands[word].exec, source = word}
+    return commands[word].exec
   else
     return nil, ("Command %s not found"):format(word)
   end
 end
 
-local function addWord(stack, word, commands)
-  local cmd, err = cmdFromWord(word, commands)
-  if not cmd then return err end
+local function addWord(stack, word, commands, functions)
+  local cmd = {source = word, args = {}}
+  if not functions[word] then
+    local wordCmd, err = cmdFromWord(word, commands)
+    if not wordCmd then return err end
+    cmd.cmd = wordCmd
+  end
 	local cur = stack[#stack]
-	cmd.args = {}
 	if not next(cur) then
 		stack[#stack] = cmd
 	else
@@ -32,7 +35,24 @@ local function addWord(stack, word, commands)
 end
 
 local parse
-function parse(str, commands, aliases)
+
+local function parseFunction(str, commands, aliases, functions)
+  local name, body = str:match("function (%w+)%s?%((.+)%)")
+  local cmd, err = parse(body, commands, aliases, functions)
+  if not cmd then return err end
+  return {
+    cmd = function(ctx)
+      ctx.functions[name] = cmd
+      return {string.format("Function %s declared", name)}
+    end,
+    args = {},
+  }
+end
+
+function parse(str, commands, aliases, functions)
+  if str:find("function") == 1 then
+    return parseFunction(str, commands, aliases, functions)
+  end
   local stack = {{}}
   while #str > 0 do
 		local next = str:sub(1,1)
@@ -46,7 +66,7 @@ function parse(str, commands, aliases)
       table.insert(stack[#stack - 1].args, table.remove(stack))
 		elseif next == '"' then
 			next = str:match('"[^"]+"')
-			local err = addWord(stack, next, commands)
+			local err = addWord(stack, next, commands, functions)
 			if err then return nil, err end
     elseif next == "{" then
       local last = stack[#stack]
@@ -55,7 +75,7 @@ function parse(str, commands, aliases)
       local args = str:match("[^}]+"):sub(2)
       last.config = last.config or {}
       for k, v in args:gmatch("(%w+)%s?=%s?(%S+)") do
-        local cmd, err = parse(v, commands, aliases)
+        local cmd, err = parse(v, commands, aliases, functions)
         if not cmd then return nil, err end
         last.config[k] = cmd
       end
@@ -65,7 +85,7 @@ function parse(str, commands, aliases)
       if aliases[next] then
         str = aliases[next]..str
       else
-  			local err = addWord(stack, next, commands)
+  			local err = addWord(stack, next, commands, functions)
   			if err then return nil, err end
       end
     end

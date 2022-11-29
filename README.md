@@ -60,6 +60,7 @@ Error handling
 stream manipulation commands
 execute a file or string
 Parameters (config options for commands)
+define functions
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
