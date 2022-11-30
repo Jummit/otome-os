@@ -32,8 +32,11 @@ function resolveCommand(command, system, functionParameters)
 					-- TODO: Move this to check. Probably all of this.
 					return nil, string.format("Expected callable for parameter %s to function %s", command.arg, functionParameters.name)
 				end
+				-- TODO FIXME: Don't modify arg here, don't do anything like this at all. please
 				arg.args = command.args
 				arg.cmd = arg.call
+				-- NOTE: arg is resolved two times, one as a fucntionParameter with
+				-- a 'call' field and once as a normal command when used like this: !1
 				arg.call = nil
 				return resolveCommand(arg, system, functionParameters)
 			else

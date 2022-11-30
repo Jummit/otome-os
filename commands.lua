@@ -5,7 +5,6 @@
 local utils = require("utils")
 local describeArgs = require "describeArgs"
 local keys, escape, map, join, shuffle = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle
-local execute = require "execute"
 
 local commands = {}
 commands.commands = {desc = "Show a list of available commands",
@@ -118,15 +117,6 @@ commands.read = {desc = "Show the content of the given files",
 	  return map(names, function(n) return ctx:read(n) end)
 	end
 }
-commands.run = {desc = "Run the given lines of code",
-	args = "lines", exec = function(ctx, lines)
-    return map(lines, function(l)
-      local output, err = execute(l, ctx)
-      if not output then return err end
-      return table.concat(output, "\n")
-    end)
-	end
-}
 commands.split = {desc = "Split the strings",
 	args = "strings", exec = function(_, strings)
     local r = {}
@@ -151,11 +141,10 @@ commands.delete = {desc = "Delete the given files", args = "files", exec = funct
     return "DEL "..n
   end)
 end}
-commands.resize = {desc = "Extend the stream", args = {"amount", "stream"}, exec = function(_, stream, count)
+commands.resize = {desc = "Extend the stream", args = {"stream", "amount"}, exec = function(_, stream, count)
   local o = {}
-  stream = stream
   for i = 1, tonumber(count[1]) do
-    o[i] = stream[i] or stream[#stream]
+    table.insert(o, stream[i] or stream[#stream])
   end
   return o
 end}

@@ -34,6 +34,7 @@ type check config
 Flow control: loops, conditions
 confirm in scripts
 immediate execution
+multiple return values / vararg
 folders and then also paths sigh.
 multiline (wait until everything is closed)
 define functions with config and parameters
@@ -64,6 +65,7 @@ Parameters (config options for commands)
 define functions
 define functions with parameters
 remove aliases in favor of functions
+callables (commands as parameters)
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
