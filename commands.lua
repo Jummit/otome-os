@@ -162,6 +162,9 @@ commands.time = {desc = "Show the time", exec = function(ctx)
   end
   return { tostring(os.date()) }
 end}
+commands.size = {desc = "Count elements of the stream", args = {"values"}, exec = function(_, values)
+  return { tostring(#values) }
+end}
 commands.list = {desc = "Create a list", args = "elements", exec = function(_, ...)
   local l = {}
   for _, arg in ipairs(table.pack(...)) do

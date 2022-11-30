@@ -66,6 +66,8 @@ define functions with parameters
 remove aliases in favor of functions
 callables (commands as parameters)
 confirm in scripts
+math operators
+comparison operators
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
