@@ -45,6 +45,8 @@ local parse
 
 local function parseFunction(str, commands, functions)
   local name, body = str:match("function (%w+)%s?%((.+)%)$")
+  if not name then return nil, "Expeced function name" end
+  if not body then return nil, string.format("Function %s has no body", name) end
   local cmd, err = parse(body, commands, functions)
   if not cmd then return nil, err end
   err = check(cmd, commands)

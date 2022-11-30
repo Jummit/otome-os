@@ -26,8 +26,10 @@ local function main()
   local pendingScript
 
   local function startScript(file)
+    local script = lines(read(system.dir..file))
+    if #script == 0 then return "File doesn't exist or is empty" end
     pendingScript = {
-      lines = lines(read(system.dir..file)),
+      lines = script,
       line = 1,
       name = file,
     }
@@ -62,22 +64,26 @@ local function main()
     local line = io.read()
     local file = line:match("run (%w+)")
     if file then
-      startScript(file)
-    end
-    if line == "" or line == "x" then
-      for _, v in ipairs(lastResult) do
-        local err = system:execute(v)
-        if err then
-          print(err)
-          break
-        end
-      end
-      lastResult = {}
-      if pendingScript then
-        executeScript()
+      local err = startScript(file)
+      if err then
+        print(err)
       end
     else
-      showResult(execute(line, system))
+      if line == "" or line == "x" then
+        for _, v in ipairs(lastResult) do
+          local err = system:execute(v)
+          if err then
+            print(err)
+            break
+          end
+        end
+        lastResult = {}
+        if pendingScript then
+          executeScript()
+        end
+      else
+        showResult(execute(line, system))
+      end
     end
   end
 end

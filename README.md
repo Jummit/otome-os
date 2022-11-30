@@ -31,7 +31,6 @@ x
 TODO:
 add config to commands where it makes sense
 type check config
-Flow control: loops, conditions
 immediate execution
 multiple return values / vararg
 folders and then also paths sigh.
@@ -68,6 +67,7 @@ callables (commands as parameters)
 confirm in scripts
 math operators
 comparison operators
+Flow control: loops (with 'give'), conditions (with 'when')
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
