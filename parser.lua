@@ -20,13 +20,18 @@ local function cmdFromWord(word, commands)
   end
 end
 
-local function addWord(stack, word, commands, functions)
-  local cmd = {source = word, args = {}}
-  if not functions[word] then
+local function getCmd(word, commands, functions)
+  if functions[word] then
+    return {fun = word, source = word, args = {}}
+  else
     local wordCmd, err = cmdFromWord(word, commands)
-    if not wordCmd then return err end
-    cmd.cmd = wordCmd
+    if not wordCmd then return nil, err end
+    return {cmd = wordCmd, source = word, args = {}}
   end
+end
+
+local function addWord(stack, word, commands, functions)
+  local cmd = getCmd(word, commands, functions)
 	local cur = stack[#stack]
 	if not next(cur) then
 		stack[#stack] = cmd
@@ -90,7 +95,6 @@ function parse(str, commands, functions)
     return parseFunction(str, commands, functions)
   end
   -- An empty table on the stack means that a command is expected.
-  local source = str
   local stack = {{}}
   while #str > 0 do
 		local part = str:sub(1,1)
@@ -141,7 +145,7 @@ function parse(str, commands, functions)
           table.insert(cur.args, cmd)
         end
       else
-        local cmd, err = cmdFromWord(part:sub(2), commands)
+        local cmd, err = getCmd(part:sub(2), commands, functions)
         if not cmd then return nil, err end
         table.insert(cur.args, {source = part, call = cmd})
       end
@@ -155,7 +159,6 @@ function parse(str, commands, functions)
   if #stack > 1 then
     return nil, "Mismatched parenthesis"
   end
-  -- stack[1].source = str
   return stack[1]
 end
 

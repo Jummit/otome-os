@@ -45,7 +45,8 @@ local function main()
       local res, err = execute(line, system)
       if not res then print(string.format("Error in script %s line %s: %s", pendingScript.name, lineNum, err)) break end
       for _, s in ipairs(res) do
-        print(select(1, s:gsub("\n", "\\n")))
+        s = s:gsub("\n", "\\n")
+        print(s)
       end
       for _, v in ipairs(res) do
         table.insert(lastResult, v)

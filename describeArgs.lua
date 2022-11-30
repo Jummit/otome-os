@@ -2,26 +2,25 @@ return function(args)
   local needed = 0
 	local limit = 0
 	local str
-  if type(args) == "string" then
-		needed = 1
-		limit = nil
-		str = "one or more "..args
-  elseif type(args) == "table" then
-		local strList = {}
-		for _, arg in ipairs(args) do
-			if type(arg) == "string" then
-				needed = needed + 1
-				limit = limit + 1
-				table.insert(strList, arg)
-			elseif type(arg) == "table" then
-				limit = limit + 1
-				table.insert(strList, string.format("optionally %s", arg[1]))
-			end
+	local strList = {}
+	for _, arg in ipairs(args or {}) do
+		local mod, name = arg:match("([%*%?]?)(.+)")
+		if mod == "?" then
+			limit = limit + 1
+			table.insert(strList, string.format("optionally %s", name))
+		elseif mod == "*" then
+			needed = 1
+			limit = nil
+			table.insert(strList, "one or more "..name)
+		else
+			needed = needed + 1
+			limit = limit + 1
+			table.insert(strList, name)
 		end
-		str = table.concat(strList, ", ")
 	end
+	str = table.concat(strList, ", ")
 	return {
-		str = str or "",
+		str = str,
 		needed = needed,
 		limit = limit,
 	}

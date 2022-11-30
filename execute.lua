@@ -17,7 +17,7 @@ local resolveCommand
 -- The command is something returned from the parser.
 function resolveCommand(command, system, functionParameters)
 	local args = {}
-	if type(command.call) == "function" then
+	if type(command.call) == "table" then
 		return command
 	end
 	if command.arg then
@@ -27,8 +27,8 @@ function resolveCommand(command, system, functionParameters)
 					functionParameters.name, #functionParameters)
 			end
 			if command.call then
-				local arg = copy(functionParameters[command.arg])
-				if not arg.call then
+				local arg = functionParameters[command.arg].call
+				if not arg then
 					-- TODO: Move this to check. Probably all of this.
 					return nil, string.format("Expected callable for parameter %s to function %s", command.arg, functionParameters.name)
 				end
@@ -52,10 +52,21 @@ function resolveCommand(command, system, functionParameters)
 		if err then return nil, err end
 		table.insert(args, argCommand)
 	end
-	local fun = system.functions[command.source]
-	if fun then
-		args.name = command.source
-		return resolveCommand(fun, system, args)
+	if command.fun then
+		args.name = command.fun
+		return resolveCommand(system.functions[command.fun], system, args)
+	end
+	for argNum, arg in ipairs(args) do
+		if arg.call then
+			args[argNum] = function(...)
+				local a = {}
+				for _, v in ipairs{...} do
+					table.insert(a, function() return v end)
+				end
+				arg.args = a
+				return resolveCommand(arg, system)
+			end
+		end
 	end
   local err = check(command, system.commands)
 	if err then return nil, err end
