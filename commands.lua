@@ -172,9 +172,9 @@ commands.give = {desc = "Execute a command for every value", args = {"!command",
     for _, stream in ipairs(streams) do
       local val = stream[v]
       if not val then return o end
-      table.insert(args, val)
+      table.insert(args, {val})
     end
-    table.insert(o, command(args)[1])
+    table.insert(o, command(table.unpack(args))[1])
     v = v + 1
   end
 end}

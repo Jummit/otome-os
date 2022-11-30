@@ -147,7 +147,9 @@ function parse(str, commands, functions)
       else
         local cmd, err = getCmd(part:sub(2), commands, functions)
         if not cmd then return nil, err end
-        table.insert(cur.args, {source = part, call = cmd})
+        cmd.call = true
+        cmd.source = part
+        table.insert(cur.args, cmd)
       end
     else
       part = str:match('[^%s%()%[%]{"]+')

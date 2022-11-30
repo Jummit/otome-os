@@ -69,6 +69,10 @@ system:execute("FUN two list $1 $2")
 assertExec("two 1 2", {"1", "2"})
 system:execute('FUN call !1')
 assertExec("call !commands")
+system:execute("FUN a !1")
+system:execute("FUN h 'a")
+assertExec("give !read files")
+assertExec("a !h")
 end
 return {
 	all = all,

@@ -17,7 +17,7 @@ local resolveCommand
 -- The command is something returned from the parser.
 function resolveCommand(command, system, functionParameters)
 	local args = {}
-	if type(command.call) == "table" then
+	if command.call and not command.arg then
 		return command
 	end
 	if command.arg then
@@ -27,14 +27,14 @@ function resolveCommand(command, system, functionParameters)
 					functionParameters.name, #functionParameters)
 			end
 			if command.call then
-				local arg = functionParameters[command.arg].call
+				local arg = functionParameters[command.arg]
 				if not arg then
 					-- TODO: Move this to check. Probably all of this.
 					return nil, string.format("Expected callable for parameter %s to function %s", command.arg, functionParameters.name)
 				end
-				-- TODO FIXME: Don't modify arg here, don't do anything like this at all. please
-				arg.args = command.args
-				arg.cmd = arg.call
+				if #arg.args == 0 then
+					arg.args = command.args
+				end
 				-- NOTE: arg is resolved two times, one as a fucntionParameter with
 				-- a 'call' field and once as a normal command when used like this: !1
 				arg.call = nil
@@ -61,9 +61,10 @@ function resolveCommand(command, system, functionParameters)
 			args[argNum] = function(...)
 				local a = {}
 				for _, v in ipairs{...} do
-					table.insert(a, function() return v end)
+					table.insert(a, {cmd=function() return v end})
 				end
 				arg.args = a
+				arg.call = nil
 				return resolveCommand(arg, system)
 			end
 		end
