@@ -18,6 +18,12 @@ commands.functions = {desc = "Show a list of defined functions",
 	  return keys(ctx.functions)
 	end
 }
+commands.when = {desc = "Return stream if stream isn't empty",
+  args = {"test", "stream"},
+	exec = function(_, test, stream)
+    return #test > 0 and stream or {}
+	end
+}
 commands.replace = {desc = "Find and replace inside the stream",
 	args = {"text", "old", "new"},
 	exec = function(_, inp, from, to)
