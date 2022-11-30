@@ -46,6 +46,9 @@ assertEq(type(err), "string")
 _, err = execute("describe etime", system)
 assertEq(type(err), "string")
 
+assertExec('function about (combine $1 (resize ": " 100) (!2 $1))')
+system:execute('FUN about combine $1 (resize ": " 100) (!2 $1)')
+assertExec("about functions !describe", {'about :  combine $1 (resize ": " 100) (!2 $1)'})
 execute('combine commands (resize ":   " 100) (describe commands', system)
 execute("columns 'a 'b", system)
 assertExec("arguments 'combine", { "one or more streams to combine"})
@@ -65,6 +68,8 @@ assertExec("sort help")
 assertExec("function two (list $1 $2)")
 system:execute("FUN two list $1 $2")
 assertExec("two 1 2", {"1", "2"})
+system:execute('FUN call !1')
+assertExec("call !commands")
 end
 return {
 	all = all,

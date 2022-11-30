@@ -12,6 +12,8 @@ local inspect = require "inspect"
 local resolveCommand
 -- Recursively resolve commands to a value.
 -- Parameters are resolved first.
+-- Function parameters are collected and passed to the sub-resolveCommand
+-- call when a function is reached. How long that will hold up is unclear.
 -- The command is something returned from the parser.
 function resolveCommand(command, system, functionParameters)
 	local args = {}
@@ -31,6 +33,8 @@ function resolveCommand(command, system, functionParameters)
 					return nil, string.format("Expected callable for parameter %s to function %s", command.arg, functionParameters.name)
 				end
 				arg.args = command.args
+				arg.cmd = arg.call
+				arg.call = nil
 				return resolveCommand(arg, system, functionParameters)
 			else
 				return functionParameters[command.arg]
@@ -40,7 +44,7 @@ function resolveCommand(command, system, functionParameters)
 				command.arg)
 		end
 	end
-	for _, arg in ipairs(command.args) do
+	for _, arg in ipairs(command.args or {}) do
 		local argCommand, err = resolveCommand(arg, system, functionParameters)
 		if err then return nil, err end
 		table.insert(args, argCommand)
