@@ -4,7 +4,7 @@
 
 local utils = require("utils")
 local describeArgs = require "describeArgs"
-local keys, escape, map, join = utils.keys, utils.escape, utils.map, utils.join
+local keys, escape, map, join, shuffle = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle
 local execute = require "execute"
 
 local commands = {}
@@ -39,6 +39,12 @@ commands.combine = {desc = "Combine multiple streams",
 commands.sort = {desc = "Sort the stream",
 	args = {"words"}, exec = function(_, stream)
     table.sort(stream)
+    return stream
+	end
+}
+commands.shuffle = {desc = "Randomize the stream",
+	args = {"stream"}, exec = function(_, stream)
+    shuffle(stream)
     return stream
 	end
 }

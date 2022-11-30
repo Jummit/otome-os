@@ -65,8 +65,14 @@ function system:execute(line)
     err = check(parsedCmd, self.commands)
   	if err then return err end
     parsedCmd.source = data
-    print("Registered function "..param)
-    self.functions[param] = parsedCmd
+    local before = self.functions[param]
+    self.history:addAction("Registered function "..param,
+      function()
+        self.functions[param] = parsedCmd
+      end,
+      function()
+        self.functions[param] = before
+      end)
   end
 end
 

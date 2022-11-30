@@ -62,4 +62,12 @@ function utils.lines(text)
   return lines
 end
 
+function utils.shuffle(t)
+  for i = #t, 2, -1 do
+    local e = math.random(i)
+    t[i], t[e] = t[e], t[i]
+  end
+  return t
+end
+
 return utils

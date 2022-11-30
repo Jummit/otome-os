@@ -32,6 +32,7 @@ TODO:
 add config to commands where it makes sense
 type check config
 Flow control: loops, conditions
+confirm in scripts
 immediate execution
 folders and then also paths sigh.
 multiline (wait until everything is closed)
@@ -113,3 +114,8 @@ Functions can take other functions as parameters and call them:
 function about (combine $1 (resize ": " 100) ($2 $1))
 about functions :describe
 ```
+
+## Confirm In Scripts
+
+If a script needs to rely on execution of previous commands for further execution,
+the user can be asked to confirm them with the `confirm` command.
