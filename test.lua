@@ -70,4 +70,5 @@ return {
 	all = all,
 	assertEq = assertEq,
 	assertExec = assertExec,
+	system = system,
 }
