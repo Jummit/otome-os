@@ -148,6 +148,13 @@ commands.resize = {desc = "Extend the stream", args = {"stream", "amount"}, exec
   end
   return o
 end}
+commands.trim = {desc = "Remove values from the stream", args = {"stream", "amount"}, exec = function(_, stream, count)
+  -- TODO: allow trimming from the back
+  for _ = 1, tonumber(count[1]) do
+    table.remove(stream, 1)
+  end
+  return stream
+end}
 commands.time = {desc = "Show the time", exec = function(ctx)
   local part = (ctx.cfg.part or {})[1]
   if part then
@@ -217,7 +224,6 @@ end}
 
 local function addMath(char, fn)
 	commands[char] = {desc = string.format("Calculate %s with input", char), args = {"numbers"}, exec = function(_, nums)
-		nums = nums
 		local o
 		for _, n in ipairs(nums) do
 			if not o then
@@ -230,10 +236,25 @@ local function addMath(char, fn)
 	end}
 end
 
+local function addCmp(char, fn)
+	commands[char] = {desc = string.format("Compare input with %s", char), args = {"numbers"}, exec = function(_, nums)
+    local first = tonumber(table.remove(nums, 1))
+		for _, n in ipairs(nums) do
+			if not fn(first, tonumber(n)) then
+        return {}
+			end
+		end
+    return {tostring(first)}
+	end}
+end
+
 addMath("+", function(a, b) return a + b end)
 addMath("*", function(a, b) return a * b end)
 addMath("-", function(a, b) return a - b end)
 addMath("/", function(a, b) return a / b end)
 addMath("%", function(a, b) return a % b end)
+addCmp(">", function(a, b) return a > b end)
+addCmp("<", function(a, b) return a < b end)
+addCmp("=", function(a, b) return a == b end)
 
 return commands
