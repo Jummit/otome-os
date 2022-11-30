@@ -30,6 +30,7 @@ end
 
 function system:execute(line)
   local cmd, param, data = line:match("(%S+) (.-) (.+)")
+  if not param then return end
   local tmpName = tostring(math.random())
   local file = self.dir..param
   if cmd == "NEW" then

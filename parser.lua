@@ -31,7 +31,8 @@ local function getCmd(word, commands, functions)
 end
 
 local function addWord(stack, word, commands, functions)
-  local cmd = getCmd(word, commands, functions)
+  local cmd, err = getCmd(word, commands, functions)
+  if not cmd then return err end
 	local cur = stack[#stack]
 	if not next(cur) then
 		stack[#stack] = cmd
