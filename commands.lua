@@ -199,7 +199,7 @@ end}
 commands.describe = {desc = "Show help for the given commands", args = "commands", exec = function(ctx, helpFor)
   return map(helpFor, function(c)
     if ctx.functions[c] then
-      return ctx.functions[c].source
+      return ctx.functions[c].definition
     elseif not commands[c] then
       return ""
     end

@@ -32,7 +32,6 @@ TODO:
 add config to commands where it makes sense
 type check config
 Flow control: loops, conditions
-confirm in scripts
 immediate execution
 multiple return values / vararg
 folders and then also paths sigh.
@@ -66,6 +65,7 @@ define functions
 define functions with parameters
 remove aliases in favor of functions
 callables (commands as parameters)
+confirm in scripts
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 

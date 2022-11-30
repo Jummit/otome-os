@@ -15,7 +15,8 @@ local function main()
     if result then
       lastResult = result
       for _, s in ipairs(result) do
-        print(select(1, s:gsub("\n", "\\n")))
+        s = s:gsub("\n", "\\n")
+        print(s)
       end
     else
       print(err)
