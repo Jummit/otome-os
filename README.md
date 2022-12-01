@@ -32,7 +32,6 @@ TODO:
 add config to commands where it makes sense
 type check config
 virtual execution of scripts (remove confirm)
-immediate execution
 allow documentation of user functions
 multiple return values / vararg
 folders and then also paths sigh.
@@ -41,10 +40,9 @@ define functions with config and parameters
 save history to disk
 pass functions to functions
 escaping in strings
-eliminate all side effects from commands
 catogories for commands
 job control (schedule tasks)
-refactor this mess. maybe add type hints?
+refactor this mess. maybe add type hints and comments?
 difference between number, bool and string streams: type checking
 port this whole thing to rust | use https://github.com/osch/lua-nocurses
 autocompletion wow (need a custom text input for that)
@@ -66,10 +64,11 @@ define functions
 define functions with parameters
 remove aliases in favor of functions
 callables (commands as parameters)
-confirm in scripts
+confirm in scripts (replaced by immediate execution)
 math operators
 comparison operators
 Flow control: loops (with 'give'), conditions (with 'when')
+commands have no side effects
 
 Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
@@ -112,6 +111,14 @@ function 'myjoin{sep = "  "} (join $1 sep)
 
 These should replace aliases. (DONE)
 
+### Documenting Functions
+
+```
+function 'myjoin{sep = "  "} (join $1 sep) 
+describe 'myjoin "Join strings by separator"
+args 'myjoin ["separator"]
+```
+
 ## Passing Functions to Functions
 
 Functions can take other functions as parameters and call them:
@@ -121,7 +128,8 @@ function about (combine $1 (resize ": " 100) ($2 $1))
 about functions :describe
 ```
 
-## Confirm In Scripts
+## Executing Scripts
 
-If a script needs to rely on execution of previous commands for further execution,
-the user can be asked to confirm them with the `confirm` command.
+Scripts can be run with the `run` command. The are executed in a virtual
+environment which is only applied when the script is successfull.
+The `undo` command undos the last run command by default.

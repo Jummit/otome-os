@@ -36,7 +36,6 @@ function system:execute(line)
   if not param then return end
   local tmpName = tostring(math.random())
   local file = self.dir..param
-  print(cmd, param, data)
   if cmd == "NEW" then
     self.history:addAction("Created "..param,
       function()

@@ -44,7 +44,20 @@ commands.combine = {desc = "Combine multiple streams",
 }
 commands.sort = {desc = "Sort the stream",
 	args = {"words"}, exec = function(_, stream)
+    local nums = {}
+    for _, v in ipairs(stream) do
+      local n = tonumber(v)
+      if not n then break end
+      table.insert(nums, n)
+    end
+    if #nums == #stream then
+      print("only numbers")
+      stream = nums
+    end
     table.sort(stream)
+    for i, v in ipairs(stream) do
+      stream[i] = tostring(v)
+    end
     return stream
 	end
 }
@@ -253,13 +266,18 @@ commands.join = {desc = "Join a list of words", args = {"words"}, exec = functio
 end}
 
 local function addMath(char, fn)
-	commands[char] = {desc = string.format("Calculate %s with input", char), args = {"numbers"}, exec = function(_, nums)
+	commands[char] = {desc = string.format("Calculate %s with input", char),
+    args = {"numbers"}, exec = function(_, nums)
 		local o
 		for _, n in ipairs(nums) do
 			if not o then
 				o = tonumber(n)
+        if not o then return {} end
 			else
-				o = fn(o, tonumber(n))
+        local num = tonumber(n)
+        if num then
+  				o = fn(o, num)
+        end
 			end
 		end
 		return {tostring(o)}

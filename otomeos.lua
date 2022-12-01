@@ -5,6 +5,7 @@
 --------------------
 
 local system = require "system"
+i = function(v) print(require ("inspect")(v)) end
 local execute = require "execute"
 local read = require("filesystem").read
 local lines = require("utils").lines
@@ -23,53 +24,28 @@ local function main()
     end
   end
 
-  local pendingScript
-
-  local function startScript(file)
+  local function executeScript(file)
+    lastResult = {}
     local script = lines(read(system.dir..file))
     if #script == 0 then return "File doesn't exist or is empty" end
-    pendingScript = {
-      lines = script,
-      line = 1,
-      name = file,
-    }
-  end
-
-  local function executeScript()
-    lastResult = {}
-    for lineNum = pendingScript.line, #pendingScript.lines do
-      local line = pendingScript.lines[lineNum]
-      if line == "confirm" then
-        print("Script requested execution of the output. Continue with [Return]")
-        pendingScript.line = lineNum + 1
-        return
-      end
+    for lineNum, line in ipairs(script) do
       local res, err = execute(line, system)
-      if not res then print(string.format("Error in script %s line %s: %s", pendingScript.name, lineNum, err)) break end
+      if not res then print(string.format("Error in script %s line %s: %s", file, lineNum, err)) break end
       for _, s in ipairs(res) do
-        s = s:gsub("\n", "\\n")
-        print(s)
-      end
-      for _, v in ipairs(res) do
-        table.insert(lastResult, v)
+        print(s:gsub("\n", "\\n"))
+        system:execute(s)
+        table.insert(lastResult, s)
       end
     end
-    pendingScript = nil
   end
 
-  startScript("start")
-  executeScript()
+  executeScript("start")
   while true do
     io.write("> ")
     local line = io.read()
     local file = line:match("run (%w+)")
     if file then
-      local err = startScript(file)
-      if err then
-        print(err)
-      else
-        executeScript()
-      end
+      executeScript(file)
     else
       if line == "" or line == "x" then
         for _, v in ipairs(lastResult) do
@@ -80,9 +56,6 @@ local function main()
           end
         end
         lastResult = {}
-        if pendingScript then
-          executeScript()
-        end
       else
         showResult(execute(line, system))
       end

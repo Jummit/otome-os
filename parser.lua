@@ -32,15 +32,19 @@ local function getCmd(word, commands, functions)
   end
 end
 
+local function addCommand(stack, command)
+	local cur = stack[#stack]
+	if not next(cur) then
+		stack[#stack] = command
+	else
+    table.insert(cur.args, command)
+  end
+end
+
 local function addWord(stack, word, commands, functions)
   local cmd, err = getCmd(word, commands, functions)
   if not cmd then return err end
-	local cur = stack[#stack]
-	if not next(cur) then
-		stack[#stack] = cmd
-	else
-    table.insert(cur.args, cmd)
-  end
+  addCommand(stack, cmd)
 end
 
 local parse
@@ -106,12 +110,14 @@ function parse(str, commands, functions)
     if part == "(" then
       table.insert(stack, {})
     elseif part == ")" or part == "]" then
-      if #stack == 1 then
-        return nil, "Excess closing brackets"
+      local prev = table.remove(stack, #stack)
+      if #stack == 0 then
+        return nil, ("Excess closing %s bracket"):format(part)
       end
-      table.insert(stack[#stack - 1].args, table.remove(stack))
+      addCommand(stack, prev)
     elseif part == "[" then
-      table.insert(stack, {args = {}, cmd = commands.list.exec, source = "Square brackets"})
+      table.insert(stack, {args = {}, cmd = commands.list.exec,
+          source = "Square brackets"})
 		elseif part == '"' then
 			part = str:match('"[^"]+"')
 			local err = addWord(stack, part, commands, functions)
@@ -143,12 +149,7 @@ function parse(str, commands, functions)
     	local cur = stack[#stack]
       local num = tonumber(part:match("%d+"))
       if num then
-        local cmd = {source = part, arg = num, call = true, args = {}}
-      	if not next(cur) then
-      		stack[#stack] = cmd
-      	else
-          table.insert(cur.args, cmd)
-        end
+        addCommand(stack, {source = part, arg = num, call = true, args = {}})
       else
         local cmd, err = getCmd(part:sub(2), commands, functions)
         if not cmd then return nil, err end
