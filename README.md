@@ -144,3 +144,7 @@ will execute
 ```
 range 1 4
 ```
+
+## The Name
+
+Otome because I like the Otometsubaki flower. Any other meanings are accidental, but welcome.
