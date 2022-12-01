@@ -22,52 +22,54 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 
 ## TODO
 
-example command to show usage of commands
-add config to commands where it makes sense
-type check config
-parameter expansion
-virtual execution of scripts (remove confirm)
-allow documentation of user functions
-multiple return values / vararg
-folders and then also paths sigh.
-multiline (wait until everything is closed)
-define functions with config and parameters
-save history to disk
-pass functions to functions
-escaping in strings
-LSP
-tree sitter grammar
-categories for commands
-job control (schedule tasks)
-refactor this mess. maybe add type hints and comments?
-difference between number, bool and string streams: type checking
-port this whole thing to rust | use https://github.com/osch/lua-nocurses
-autocompletion wow (need a custom text input for that)
-cache commands
-write something usefull with this
-fancy frontend with autocompletion
-make it a game? Or maybe an actual shell?
-UTF8 support
+- [ ] example command to show usage of commands
+- [ ] add config to commands where it makes sense
+- [ ] type check config
+- [ ] parameter expansion
+- [ ] virtual execution of scripts (remove confirm)
+- [ ] allow documentation of user functions
+- [ ] multiple return values / vararg
+- [ ] folders and then also paths sigh.
+- [ ] multiline (wait until everything is closed)
+- [ ] define functions with config and parameters
+- [ ] save history to disk
+- [ ] pass functions to functions
+- [ ] escaping in strings
+- [ ] LSP
+- [ ] tree sitter grammar
+- [ ] categories for commands
+- [ ] job control (schedule tasks)
+- [ ] refactor this mess. maybe add type hints and comments?
+- [ ] difference between number, bool and string streams: type checking
+- [ ] port this whole thing to rust | use https://github.com/osch/lua-nocurses
+- [ ] autocompletion wow (need a custom text input for that)
+- [ ] cache commands
+- [ ] write something usefull with this
+- [ ] fancy frontend with autocompletion
+- [ ] make it a game? Or maybe an actual shell?
+- [ ] UTF8 support
 
 ## DONE
 
-Tests
-Strings
-List sugar
-Aliases (removed in favor of functions)
-Error handling
-stream manipulation commands
-execute a file or string
-Parameters (config options for commands)
-define functions
-define functions with parameters
-remove aliases in favor of functions
-callables (commands as parameters)
-confirm in scripts (replaced by immediate execution)
-math operators
-comparison operators
-Flow control: loops (with 'give'), conditions (with 'when')
-commands have no side effects
+- [x] Tests
+- [x] Strings
+- [x] List sugar
+- [x] Aliases (removed in favor of functions)
+- [x] Error handling
+- [x] stream manipulation commands
+- [x] execute a file or string
+- [x] Parameters (config options for commands)
+- [x] define functions
+- [x] define functions with parameters
+- [x] remove aliases in favor of functions
+- [x] callables (commands as parameters)
+- [x] confirm in scripts (replaced by immediate execution)
+- [x] math operators
+- [x] comparison operators
+- [x] Flow control: loops (with 'give'), conditions (with 'when')
+- [x] commands have no side effects
+
+## Timed Commands
 
 Commands should execute instantly. Tasks can be scheduled by the OS:
 
@@ -75,7 +77,7 @@ Commands should execute instantly. Tasks can be scheduled by the OS:
 IN 5s write log
 ```
 
-## Command Parameters
+## Command Configuration
 
 **Example:**
 
