@@ -4,8 +4,7 @@
 
 local utils = require("utils")
 local describeArgs = require "describeArgs"
-local keys, escape, map, join, shuffle, split = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle, utils.split
-local inspect = require "inspect"
+local keys, escape, map, join, shuffle, split, copy = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle, utils.split, utils.copy
 
 local commands = {}
 commands.commands = {desc = "Show a list of available commands",
@@ -37,7 +36,11 @@ commands.combine = {desc = "Combine multiple streams",
 	  local r = {}
 	  local streams = {...}
 	  for i = 1, math.min(table.unpack(map(streams, function(e) return #e end))) do
-	    table.insert(r, table.concat(map(streams, function(e) return e[i] end), " "))
+      local vals = {}
+      for _, stream in ipairs(streams) do
+        table.insert(vals, stream[i])
+      end
+	    table.insert(r, table.concat(vals, " "))
 	  end
 	  return r
 	end
@@ -51,6 +54,7 @@ commands.sort = {desc = "Sort the stream",
       table.insert(nums, n)
     end
     -- TODO: Add config option to enforce comparing numbers.
+    stream = copy(stream)
     if #nums == #stream then
       stream = nums
     end
@@ -63,6 +67,7 @@ commands.sort = {desc = "Sort the stream",
 }
 commands.shuffle = {desc = "Randomize the stream",
 	args = {"stream"}, exec = function(_, stream)
+    stream = copy(stream)
     shuffle(stream)
     return stream
 	end
@@ -184,6 +189,7 @@ commands.at = {desc = "Get value at indices", args = {"indices", "stream"}, exec
 end}
 commands.trim = {desc = "Remove values from the stream", args = {"stream", "amount"}, exec = function(_, stream, count)
   -- TODO: allow trimming from the back
+  stream = copy(stream)
   for _ = 1, tonumber(count[1]) do
     table.remove(stream, 1)
   end
@@ -310,6 +316,7 @@ commands["or"] = {desc = "Return the first stream with values", args = {"*stream
 end}
 commands.remove = {desc = "Remove values from a stream", args = {"remove", "stream"},
   exec = function(_, remove, stream)
+    stream = copy(stream)
     local l = #stream
     for _, toRemove in ipairs(remove) do
       for i in ipairs(stream) do
