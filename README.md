@@ -6,7 +6,7 @@ A shell / fantasy operating system inspired by functional programming written in
 
 **This project is a WIP**
 
-Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC8.
+Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
 
 ## The Basics
 
