@@ -67,6 +67,8 @@ local function main()
       local err = startScript(file)
       if err then
         print(err)
+      else
+        executeScript()
       end
     else
       if line == "" or line == "x" then

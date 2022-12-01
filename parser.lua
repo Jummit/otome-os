@@ -9,9 +9,11 @@ local check = require "check"
 local function cmdFromWord(word, commands)
   if word:sub(1, 1) == "'" or tonumber(word) then
     local inner = word:gsub("'", "", 1)
+    inner = inner:gsub("\\n", "\n")
     return function() return {inner} end
 	elseif word:sub(1, 1) == '"' then
 		local inner = word:sub(2, -2)
+    inner = inner:gsub("\\n", "\n")
     return function() return {inner} end
   elseif commands[word] then
     return commands[word].exec

@@ -1,6 +1,9 @@
 ------------------------
---  System Execution  --
+--  Operating System  --
 ------------------------
+
+-- The system object stores the state of the computer.
+-- It can execute system commands.
 
 local strip = require("utils").strip
 local join = require("utils").join
@@ -33,6 +36,7 @@ function system:execute(line)
   if not param then return end
   local tmpName = tostring(math.random())
   local file = self.dir..param
+  print(cmd, param, data)
   if cmd == "NEW" then
     self.history:addAction("Created "..param,
       function()

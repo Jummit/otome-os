@@ -70,4 +70,18 @@ function utils.shuffle(t)
   return t
 end
 
+function utils.split(str, at)
+  local parts = {}
+  while true do
+    local start, to = str:find(at)
+    if not start then
+      table.insert(parts, str)
+      break
+    end
+    table.insert(parts, str:sub(1, start - 1))
+    str = str:sub(to + 1)
+  end
+  return parts
+end
+
 return utils

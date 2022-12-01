@@ -4,7 +4,7 @@
 
 local utils = require("utils")
 local describeArgs = require "describeArgs"
-local keys, escape, map, join, shuffle = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle
+local keys, escape, map, join, shuffle, split = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle, utils.split
 local inspect = require "inspect"
 
 local commands = {}
@@ -125,10 +125,14 @@ commands.read = {desc = "Show the content of the given files",
 	end
 }
 commands.split = {desc = "Split the strings",
-	args = {"*strings"}, exec = function(_, strings)
+	args = {"*strings"}, exec = function(ctx, strings)
     local r = {}
+    local sep = "\n"
+    if ctx.cfg.sep then
+      sep = ctx.cfg.sep[1]
+    end
     for _, str in ipairs(strings) do
-      for elem in str:gmatch("[^\n]+") do
+      for _, elem in ipairs(split(str, sep)) do
         table.insert(r, elem)
       end
     end

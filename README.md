@@ -31,7 +31,9 @@ x
 TODO:
 add config to commands where it makes sense
 type check config
+virtual execution of scripts (remove confirm)
 immediate execution
+allow documentation of user functions
 multiple return values / vararg
 folders and then also paths sigh.
 multiline (wait until everything is closed)

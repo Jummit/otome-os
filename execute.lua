@@ -63,6 +63,7 @@ function resolveCommand(command, system, functionParameters)
 				for _, v in ipairs{...} do
 					table.insert(a, {cmd=function() return v end})
 				end
+				arg = copy(arg)
 				arg.args = a
 				arg.call = nil
 				return resolveCommand(arg, system)
