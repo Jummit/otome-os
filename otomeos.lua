@@ -49,7 +49,10 @@ local function main()
   end
 
   executeScript("start")
-  do return end
+  if arg[1] == "--script" then
+    executeScript(arg[2])
+    do return end
+  end
   while true do
     io.write("> ")
     local line = io.read()
