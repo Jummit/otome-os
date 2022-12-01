@@ -123,8 +123,8 @@ args 'myjoin ["separator"]
 Functions can take other functions as parameters and call them:
 
 ```
-function about (combine $1 (resize ": " 100) ($2 $1))
-about functions :describe
+function about (combine $1 (resize ": " 100) (!2 $1))
+about functions !describe
 ```
 
 ## Executing Scripts
