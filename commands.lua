@@ -216,10 +216,13 @@ end}
 commands.write = {desc = "Write something into a file", args = {"text", "files"}, exec = function(_, text, file)
   return {"INS "..file[1].." "..table.concat(text, "\n")}
 end}
-commands.range = {desc = "Generate a sequence of numbers", args = {"from", "to", "step"}, exec = function(_, from, to)
+commands.range = {desc = "Generate a sequence of numbers", args = {"from", "to"}, exec = function(_, from, to)
   local t = {}
-  for i = tonumber(from[1]), tonumber(to[1]) do
-    table.insert(t, i)
+  from = tonumber(from[1])
+  to = tonumber(to[1])
+  -- TODO: Add step parameter
+  for i = from, to, to > from and 1 or -1 do
+    table.insert(t, tostring(i))
   end
   return t
 end}
