@@ -4,7 +4,10 @@
 
 local describeArgs = require "describeArgs"
 
+local cachedOk = {}
+
 return function(command, commands)
+  if cachedOk[command] then return end
   if not commands[command.source] then
 		return
 	end
@@ -16,4 +19,5 @@ return function(command, commands)
     return string.format("%s only takes %s parameters (%s), got %s\ntry passing multiple parameters as a [list]",
 				command.source, args.limit or args.needed, args.str, argCount)
   end
+  cachedOk[command] = true
 end
