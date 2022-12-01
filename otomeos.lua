@@ -6,7 +6,7 @@
 
 local system = require "system"
 i = function(v) print(require ("inspect")(v)) end
-local execute = require "execute"
+local execute = require "interpreter"
 local read = require("filesystem").read
 local lines = require("utils").lines
 
@@ -48,7 +48,7 @@ local function main()
     end
   end
 
-  executeScript("start")
+  -- executeScript("start")
   if arg[1] == "--script" then
     executeScript(arg[2])
     do return end
@@ -57,8 +57,12 @@ local function main()
     io.write("> ")
     local line = io.read()
     local file = line:match("run (%w+)")
+    local funName, funBody = line:match("^function (%S+)%s?(.*)")
     if file then
       executeScript(file)
+    elseif funName then
+      local err = system:execute(("FUN %s %s"):format(funName, funBody))
+      if err then print(err) end
     else
       if line == "" or line == "x" then
         for _, v in ipairs(lastResult) do

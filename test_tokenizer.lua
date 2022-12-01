@@ -12,7 +12,12 @@ i = function(v) print(require ("inspect")(v)) end
 -- print(inspect(parse('a{r=b{i=(c e \'b)}} e "A \\"" [1 2 !a]')))
 -- print(inspect(parse('commands')))
 -- print(inspect(execute('+ [1 2 3]', system)))
-print(inspect(execute('join{with="\n"} [1 2 3]', system)))
+-- print(inspect(execute('join{with="\n"} [1 2 3]', system)))
+-- print(inspect(parse('join{with="\n"} [!1 $2 $3]')))
+system.functions.ma = parse('join [(!1 $2) 2]')
+print(inspect(parse('ma [(!1 $2) 2]')))
+-- print(inspect(parse('a !join [1 2]')))
+print(inspect(execute('ma !join [1 2]', system)))
 
 -- cmd:A
 -- cmd:A, configKey

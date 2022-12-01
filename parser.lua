@@ -59,18 +59,22 @@ local function parse(line)
   function readCommand()
     local start = read()
     if start.type == "number" then
-      return { number = start.value }
+      return { number = tostring(start.value) }
     elseif start.type == "string" then
       return { string = start.value }
-    end
-    if start.type == "(" then
+    elseif start.type == "$" then
+      return { arg = tonumber(read().value) }
+    elseif start.type == "(" then
       return readCommandWithArgs()
     elseif start.type == "!" then
+      if peek().type == "number" then
+        return { callableArg = read().value }
+      end
       local command = readCommand()
-      command.callable = true
+      command.callable = command.command
+      command.command = nil
       return command
-    end
-    if start.type == "[" then
+    elseif start.type == "[" then
       return readList()
     end
     local command = {}
@@ -79,7 +83,6 @@ local function parse(line)
     if after and after.type == "{" then
       command.config = readConfig()
     end
-    after = peek()
     return command
   end
 

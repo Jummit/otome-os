@@ -7,7 +7,7 @@
 
 -- Characters which are used directly and act as word delimiters.
 local literal = {}
-for _, char in ipairs{"{", "}", "(", ")", "[", "]", "=", "!"} do
+for _, char in ipairs{"{", "}", "(", ")", "[", "]", "=", "$", "!"} do
 	literal[char] = true
 end
 
@@ -28,12 +28,12 @@ return function(line)
 		end
 		if nextIsString then
 			push("string", word)
+			nextIsString = false
 		elseif tonumber(word) then
-			push("number", word)
+			push("number", tonumber(word))
 		else
 			push("word", word)
 		end
-		nextIsString = false
 		word = ""
 	end
 
