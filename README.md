@@ -44,7 +44,6 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [ ] port this whole thing to rust | use https://github.com/osch/lua-nocurses
 - [ ] autocompletion wow (need a custom text input for that)
 - [ ] cache commands
-- [ ] write something usefull with this
 - [ ] fancy frontend with autocompletion
 - [ ] make it a game? Or maybe an actual shell?
 - [ ] UTF8 support
@@ -68,6 +67,7 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [x] comparison operators
 - [x] Flow control: loops (with 'give'), conditions (with 'when')
 - [x] commands have no side effects
+- [x] Wrote something useful with this: [AOC D1](https://www.reddit.com/r/adventofcode/comments/z9ezjb/comment/iyha7bf/?context=3)
 
 ## Timed Commands
 
