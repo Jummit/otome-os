@@ -29,17 +29,27 @@ local function main()
     local script = lines(read(system.dir..file))
     if #script == 0 then return "File doesn't exist or is empty" end
     for lineNum, line in ipairs(script) do
-      local res, err = execute(line, system)
-      if not res then print(string.format("Error in script %s line %s: %s", file, lineNum, err)) break end
-      for _, s in ipairs(res) do
-        print(s:gsub("\n", "\\n"))
-        system:execute(s)
-        table.insert(lastResult, s)
+      if #line > 0 and line:sub(1, 1) ~= "#" then
+        local res, err = execute(line, system)
+        if not res then print(string.format("Error in script %s line %s: %s", file, lineNum, err)) break end
+        for _, s in ipairs(res) do
+          local pretty = s:gsub("\n", "\\n")
+          local action, exerr = system:execute(s)
+          if exerr then
+            print(exerr)
+            break
+          end
+          if not action then
+            print(pretty)
+          end
+          table.insert(lastResult, s)
+        end
       end
     end
   end
 
   executeScript("start")
+  do return end
   while true do
     io.write("> ")
     local line = io.read()

@@ -37,7 +37,7 @@ function system:execute(line)
   local tmpName = tostring(math.random())
   local file = self.dir..param
   if cmd == "NEW" then
-    self.history:addAction("Created "..param,
+    return self.history:addAction("Created "..param,
       function()
         os.rename(file, self.trash..tmpName)
         write(file, "")
@@ -48,7 +48,7 @@ function system:execute(line)
       end
     )
   elseif cmd == "DEL" then
-    self.history:addAction("Deleted "..param,
+    return self.history:addAction("Deleted "..param,
       function() os.rename(file, tmpName) end,
       function() os.rename(tmpName, file) end
     )
@@ -59,7 +59,7 @@ function system:execute(line)
     local file
     param = strip(param:gsub("^%S+", function(e) file = e return "" end, 1))
     local old = self.files[param]
-    self.history:addAction("Inserted into "..file,
+    return self.history:addAction("Inserted into "..file,
       function() self.files[file] = join(old or {}, {param}) end,
       function() self.files[file] = old end
     )
@@ -70,7 +70,7 @@ function system:execute(line)
   	if err then return err end
     parsedCmd.definition = data
     local before = self.functions[param]
-    self.history:addAction("Registered function "..param,
+    return self.history:addAction("Registered function "..param,
       function()
         self.functions[param] = parsedCmd
       end,

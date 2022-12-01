@@ -12,8 +12,8 @@ return function()
 		  self.history = join(self.history, self.reverts)
 		  table.insert(self.history, {name = name, doFun = doFun, undo = undo})
 		  doFun()
-		  print(name)
 		  self.reverts = {}
+			return name
 		end,
 		undo = function(self)
 		  local toRevert = self.history[#self.history - #self.reverts]

@@ -50,8 +50,8 @@ commands.sort = {desc = "Sort the stream",
       if not n then break end
       table.insert(nums, n)
     end
+    -- TODO: Add config option to enforce comparing numbers.
     if #nums == #stream then
-      print("only numbers")
       stream = nums
     end
     table.sort(stream)
@@ -172,6 +172,13 @@ commands.resize = {desc = "Extend the stream", args = {"stream", "amount"}, exec
   end
   return o
 end}
+commands.at = {desc = "Get value at indices", args = {"stream", "indices"}, exec = function(_, stream, indices)
+  local o = {}
+  for _, i in ipairs(indices) do
+    table.insert(o, stream[tonumber(i)])
+  end
+  return o
+end}
 commands.trim = {desc = "Remove values from the stream", args = {"stream", "amount"}, exec = function(_, stream, count)
   -- TODO: allow trimming from the back
   for _ = 1, tonumber(count[1]) do
@@ -186,21 +193,27 @@ commands.time = {desc = "Show the time", exec = function(ctx)
   end
   return { tostring(os.date()) }
 end}
-commands.give = {desc = "Execute a command for every value", args = {"!command", "*values"}, exec = function(_, command, ...)
-  local streams = {...}
-  local v = 1
-  local o = {}
-  while true do
-    local args = {}
-    for _, stream in ipairs(streams) do
-      local val = stream[v]
-      if not val then return o end
-      table.insert(args, {val})
+commands.give = {desc = "Execute a command for every set of values\nEach output is added to the output stream",
+  args = {"!command", "*values"}, exec = function(_, command, ...)
+    local streams = {...}
+    local v = 1
+    local o = {}
+    while true do
+      local args = {}
+      for _, stream in ipairs(streams) do
+        local val = stream[v]
+        if not val then return o end
+        table.insert(args, {val})
+      end
+      local res, err = command(table.unpack(args))
+      if not res then return {err} end
+      for _, val in ipairs(res) do
+        table.insert(o, val)
+      end
+      v = v + 1
     end
-    table.insert(o, command(table.unpack(args))[1])
-    v = v + 1
   end
-end}
+}
 commands.size = {desc = "Count elements of the stream", args = {"values"}, exec = function(_, values)
   return { tostring(#values) }
 end}
@@ -216,10 +229,10 @@ end}
 commands.write = {desc = "Write something into a file", args = {"text", "files"}, exec = function(_, text, file)
   return {"INS "..file[1].." "..table.concat(text, "\n")}
 end}
-commands.range = {desc = "Generate a sequence of numbers", args = {"from", "to"}, exec = function(_, from, to)
+commands.range = {desc = "Generate a sequence of numbers", args = {"range"}, exec = function(_, range)
   local t = {}
-  from = tonumber(from[1])
-  to = tonumber(to[1])
+  local from = tonumber(range[1])
+  local to = tonumber(range[2])
   -- TODO: Add step parameter
   for i = from, to, to > from and 1 or -1 do
     table.insert(t, tostring(i))

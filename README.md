@@ -29,6 +29,7 @@ Edit/Debug/Fix cycle:
 x
 
 TODO:
+example command
 add config to commands where it makes sense
 type check config
 virtual execution of scripts (remove confirm)
@@ -115,7 +116,7 @@ These should replace aliases. (DONE)
 
 ```
 function 'myjoin{sep = "  "} (join $1 sep) 
-describe 'myjoin "Join strings by separator"
+describe 'myjoin "Join strings by separator\n\nA longer example: myjoin{sep=}\n\n\nNOTE: this is pretty useless"
 args 'myjoin ["separator"]
 ```
 
@@ -133,3 +134,9 @@ about functions :describe
 Scripts can be run with the `run` command. The are executed in a virtual
 environment which is only applied when the script is successfull.
 The `undo` command undos the last run command by default.
+
+## Multiple Return Values
+
+```
+equalize 
+```
