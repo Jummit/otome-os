@@ -172,10 +172,13 @@ commands.resize = {desc = "Extend the stream", args = {"stream", "amount"}, exec
   end
   return o
 end}
-commands.at = {desc = "Get value at indices", args = {"stream", "indices"}, exec = function(_, stream, indices)
+commands.at = {desc = "Get value at indices", args = {"indices", "stream"}, exec = function(_, indices, stream)
   local o = {}
   for _, i in ipairs(indices) do
-    table.insert(o, stream[tonumber(i)])
+    local val = stream[tonumber(i)]
+    if val then
+      table.insert(o, val)
+    end
   end
   return o
 end}
@@ -229,10 +232,28 @@ end}
 commands.write = {desc = "Write something into a file", args = {"text", "files"}, exec = function(_, text, file)
   return {"INS "..file[1].." "..table.concat(text, "\n")}
 end}
-commands.range = {desc = "Generate a sequence of numbers", args = {"range"}, exec = function(_, range)
+commands.unique = {desc = "Return stream with unique values",
+  args = {"values"}, exec = function(ctx, values)
+    local count = {}
+    local o = {}
+    local max = 1
+    if ctx.cfg.max then
+      max = tonumber(ctx.cfg.max[1])
+    end
+    for _, v in ipairs(values) do
+      if not count[v] or count[v] < max then
+        count[v] = (count[v] or 0) + 1
+        table.insert(o, v)
+      end
+    end
+    return o
+  end
+}
+commands.range = {desc = "Generate a sequence of numbers", args = {"from", "to"}, exec = function(_, from, to)
   local t = {}
-  local from = tonumber(range[1])
-  local to = tonumber(range[2])
+  from = tonumber(from[1])
+  to = tonumber(to[1])
+  if not from or not to then return {} end
   -- TODO: Add step parameter
   for i = from, to, to > from and 1 or -1 do
     table.insert(t, tostring(i))
@@ -280,6 +301,32 @@ end}
 commands.join = {desc = "Join a list of words", args = {"words"}, exec = function(ctx, words, sep)
 	return {table.concat(words, (ctx.cfg.sep or {" "})[1])}
 end}
+commands["or"] = {desc = "Return the first stream with values", args = {"*streams"},
+  exec = function(_, ...)
+    for _, stream in ipairs({...}) do
+      if #stream > 0 then return stream end
+    end
+    return {}
+end}
+commands.remove = {desc = "Remove values from a stream", args = {"remove", "stream"},
+  exec = function(_, remove, stream)
+    local l = #stream
+    for _, toRemove in ipairs(remove) do
+      for i in ipairs(stream) do
+        if stream[i] == toRemove then
+          stream[i] = nil
+          break
+        end
+      end
+    end
+    local n = {}
+    for i = 1, l do
+      if stream[i] then
+        table.insert(n, stream[i])
+      end
+    end
+    return stream
+end}
 
 local function addMath(char, fn)
 	commands[char] = {desc = string.format("Calculate %s with input", char),
@@ -303,6 +350,7 @@ end
 local function addCmp(char, fn)
 	commands[char] = {desc = string.format("Compare input with %s", char), args = {"numbers"}, exec = function(_, nums)
     local first = tonumber(table.remove(nums, 1))
+    if not first then return {} end
 		for _, n in ipairs(nums) do
 			if not fn(first, tonumber(n)) then
         return {}

@@ -32,6 +32,7 @@ TODO:
 example command
 add config to commands where it makes sense
 type check config
+parameter expansion
 virtual execution of scripts (remove confirm)
 allow documentation of user functions
 multiple return values / vararg
@@ -41,6 +42,8 @@ define functions with config and parameters
 save history to disk
 pass functions to functions
 escaping in strings
+LSP
+tree sitter grammar
 catogories for commands
 job control (schedule tasks)
 refactor this mess. maybe add type hints and comments?
@@ -135,8 +138,14 @@ Scripts can be run with the `run` command. The are executed in a virtual
 environment which is only applied when the script is successfull.
 The `undo` command undos the last run command by default.
 
-## Multiple Return Values
+## Parameter Expansion
 
 ```
-equalize 
+range {[1 4]}
+```
+
+will execute
+
+```
+range 1 4
 ```
