@@ -1,35 +1,28 @@
 # OtomeOS 💮
 
-Other possibility:
-replace-text (show-file get-files) apple banana
+An interesting, friendly computation environment for curious and playful users.
 
+A shell / fantasy operating system inspired by functional programming written in Lua where everything is non-destructive.
+
+**This project is a WIP**
+
+Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC8.
+
+## The Basics
+
+```
 Command Arg1 Arg2 (SubCommand Arg1 Arg2)
-Commands can be called to return a stream of any length
-Args can be commands that return streams
-The result of the root is printed
-Commands are basically maps of on stream to another
-square brackets [] can be used to convert a list of arguments into a stream:
-"new [a b c d]" will create files a b c and d
+```
 
-OS
-has repl
-has separate command instruction format to perform tasks:
-DEL file
-INS smth
-MOV file
-Only read operations can be executed by commands
-Output of Commands can be executed using X
-X without commands executes the last output
-X with command executes that command as system
-All operations can be undone. This adds the REV instruction to the history
---
-Edit/Debug/Fix cycle:
-!write (edit (read 'somefile)) 'somefile
-(Editor is now open, when quit a system command is printed to stdout)
-x
+* Commands can be called to return a list
+* Arguments are commands that return lists
+* The result of the root is shown
+* Commands have no side effects
+* Output of commands is sent to system, which has a separate command syntax
 
-TODO:
-example command
+## TODO
+
+example command to show usage of commands
 add config to commands where it makes sense
 type check config
 parameter expansion
@@ -44,7 +37,7 @@ pass functions to functions
 escaping in strings
 LSP
 tree sitter grammar
-catogories for commands
+categories for commands
 job control (schedule tasks)
 refactor this mess. maybe add type hints and comments?
 difference between number, bool and string streams: type checking
@@ -56,7 +49,9 @@ fancy frontend with autocompletion
 make it a game? Or maybe an actual shell?
 UTF8 support
 
-DONE: Tests
+## DONE
+
+Tests
 Strings
 List sugar
 Aliases (removed in favor of functions)
@@ -74,12 +69,10 @@ comparison operators
 Flow control: loops (with 'give'), conditions (with 'when')
 commands have no side effects
 
-Project inspired by: Bash, ZSH, Exapunks, Blender Geometry Nodes, Lisp/Functional Programming, TIC80.
-
 Commands should execute instantly. Tasks can be scheduled by the OS:
 
 ```
-IN 5 write log
+IN 5s write log
 ```
 
 ## Command Parameters
