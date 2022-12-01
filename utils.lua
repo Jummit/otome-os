@@ -17,7 +17,7 @@ function utils.join(...)
 end
 
 function utils.escape(text)
-    return text:gsub("([^%w])", "%%%1")
+  return text:gsub("([^%w])", "%%%1")
 end
 
 function utils.keys(t)
@@ -46,13 +46,18 @@ function utils.map(t, fun)
   return r
 end
 
-function utils.copy(t)
-  local copy = {}
+local copy
+function copy(t)
+  local ct = {}
   for k, v in pairs(t) do
-    copy[k] = v
+    if type(v) == "table" then
+      v = copy(v)
+    end
+    ct[k] = v
   end
-  return copy
+  return ct
 end
+utils.copy = copy
 
 function utils.lines(text)
   local lines = {}
@@ -83,5 +88,40 @@ function utils.split(str, at)
   end
   return parts
 end
+
+local hash
+function hash(v)
+  if type(v) == "table" then
+    local h = ""
+    for k, n in pairs(v) do
+      h = h.." "..hash(k).." "..hash(n)
+    end
+    return h
+  else
+    return tostring(v)
+  end
+end
+utils.hash = hash
+
+local compare
+function compare(a, b)
+  if type(a) ~= type(b) then return false end
+  if type(a) == "table" then
+    for k in pairs(a) do
+      if not compare(a[k], b[k]) then
+        return false
+      end
+    end
+    for k in pairs(b) do
+      if not compare(a[k], b[k]) then
+        return false
+      end
+    end
+    return true
+  else
+    return a == b
+  end
+end
+utils.compare = compare
 
 return utils

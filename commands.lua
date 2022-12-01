@@ -146,8 +146,8 @@ commands.split = {desc = "Split the strings",
 	args = {"*strings"}, exec = function(ctx, strings)
     local r = {}
     local sep = "\n"
-    if ctx.cfg.sep then
-      sep = ctx.cfg.sep[1]
+    if ctx.cfg.at then
+      sep = ctx.cfg.at[1]
     end
     for _, str in ipairs(strings) do
       for _, elem in ipairs(split(str, sep)) do
@@ -305,7 +305,7 @@ commands.arguments = {desc = "Show args of a command", args = {"*commands"}, exe
   end)
 end}
 commands.join = {desc = "Join a list of words", args = {"words"}, exec = function(ctx, words, sep)
-	return {table.concat(words, (ctx.cfg.sep or {" "})[1])}
+	return {table.concat(words, (ctx.cfg.with or {" "})[1])}
 end}
 commands["or"] = {desc = "Return the first stream with values", args = {"*streams"},
   exec = function(_, ...)
