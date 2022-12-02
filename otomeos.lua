@@ -38,13 +38,9 @@ local function main()
         end
         if type(res) == "string" then res = {res} end
         for _, s in ipairs(res or {}) do
-          local pretty = s:gsub("\n", "\\n")
           local action, exerr = system:execute(s)
           if exerr then
             return nil, exerr
-          end
-          if not action then
-            print(pretty)
           end
           table.insert(allRes, s)
         end

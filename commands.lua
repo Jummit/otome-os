@@ -27,8 +27,21 @@ commands.replace = {desc = "Find and replace inside the stream",
 	args = {"text", "old", "new"},
 	exec = function(_, inp, from, to)
 	  return map(inp, function(v)
-	    return v:gsub(escape(from[1]), to[1])
+      for i, fr in ipairs(from) do
+  	    v = v:gsub(escape(fr), to[i])
+      end
+      return v
 	  end)
+	end
+}
+commands.every = {desc = "Get every nth value from a stream",
+	args = {"nth", "stream"},
+	exec = function(_, nth, inp)
+    local o = {}
+    for i = 1, #inp, tonumber(nth[1]) do
+      table.insert(o, inp[i])
+    end
+    return o
 	end
 }
 commands.combine = {desc = "Combine multiple streams",
@@ -54,7 +67,7 @@ commands.sort = {desc = "Sort the stream",
       table.insert(nums, n)
     end
     -- TODO: Add config option to enforce comparing numbers.
-    stream = copy(stream)
+    -- stream = copy(stream)
     if #nums == #stream then
       stream = nums
     end
@@ -67,7 +80,7 @@ commands.sort = {desc = "Sort the stream",
 }
 commands.shuffle = {desc = "Randomize the stream",
 	args = {"stream"}, exec = function(_, stream)
-    stream = copy(stream)
+    -- stream = copy(stream)
     shuffle(stream)
     return stream
 	end
@@ -170,13 +183,19 @@ commands.delete = {desc = "Delete the given files", args = {"*files"}, exec = fu
     return "DEL "..n
   end)
 end}
-commands.resize = {desc = "Extend the stream", args = {"stream", "amount"}, exec = function(_, stream, count)
-  local o = {}
-  for i = 1, tonumber(count[1]) do
-    table.insert(o, stream[i] or stream[#stream])
+commands.resize = {desc = "Extend the stream", args = {"stream", "length"},
+  exec = function(ctx, stream, count)
+    local o = {}
+    local start = 1
+    if ctx.cfg.start then
+      start = tonumber(ctx.cfg.start[1])
+    end
+    for i = start, tonumber(count[1]) do
+      table.insert(o, stream[i] or stream[#stream])
+    end
+    return o
   end
-  return o
-end}
+}
 commands.at = {desc = "Get value at indices", args = {"indices", "stream"}, exec = function(_, indices, stream)
   local o = {}
   for _, i in ipairs(indices) do
@@ -187,9 +206,27 @@ commands.at = {desc = "Get value at indices", args = {"indices", "stream"}, exec
   end
   return o
 end}
+commands.removeat = {desc = "Remove values at indices",
+  args = {"indices", "stream"}, exec = function(_, indices, stream)
+    local o = {}
+    for i, val in ipairs(stream) do
+      local insert = true
+      for _, r in ipairs(indices) do
+        if tonumber(r) == i then
+          insert = false
+          break
+        end
+      end
+      if insert then
+        table.insert(o, val)
+      end
+    end
+    return o
+  end
+}
 commands.trim = {desc = "Remove values from the stream", args = {"stream", "amount"}, exec = function(_, stream, count)
   -- TODO: allow trimming from the back
-  stream = copy(stream)
+  -- stream = copy(stream)
   for _ = 1, tonumber(count[1]) do
     table.remove(stream, 1)
   end
@@ -316,7 +353,7 @@ commands["or"] = {desc = "Return the first stream with values", args = {"*stream
 end}
 commands.remove = {desc = "Remove values from a stream", args = {"remove", "stream"},
   exec = function(_, remove, stream)
-    stream = copy(stream)
+    -- stream = copy(stream)
     local l = #stream
     for _, toRemove in ipairs(remove) do
       for i in ipairs(stream) do
