@@ -94,7 +94,7 @@ return function(line, system)
     return
   end
   local command, err = parse(line)
-  if err then return nil, err end
+  if err then return err end
   err = check(command, system)
   cachedOk[command] = not err
   return err

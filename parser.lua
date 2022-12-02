@@ -26,11 +26,8 @@ local function parse(line)
   local function readConfig()
     assert(read().type == "{")
     local vals = {}
-    while true do
-      local key = read()
-      if key.type == "}" then
-        break
-      end
+    local key = read()
+    while key.type ~= "}" do
       assert(read().type == "=")
       local val, err = readCommand()
       if err then return nil, err end
@@ -64,6 +61,8 @@ local function parse(line)
       return { arg = tonumber(read().value) }
     elseif start.type == ")" then
       return nil, "Empty block"
+    elseif start.type == "}" then
+      return nil, "Unexpected closing config bracket"
     elseif start.type == "(" then
       local cmd, err = readCommandWithArgs()
       if err then return nil, err end
