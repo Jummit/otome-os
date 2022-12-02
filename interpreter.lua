@@ -3,7 +3,9 @@
 -----------------
 
 -- Executes a line of code.
+-- Parameters are evaluated first.
 
+local check = require "check"
 local parse = require "parser"
 
 local execute
@@ -11,7 +13,6 @@ function execute(command, system, functionArgs, directArgs)
 	local evaluatedArgs = {}
 	if not directArgs then
 		for _, arg in ipairs(command.args or {}) do
-			-- i(arg)
 			local evaluated, err = execute(arg, system, functionArgs)
 			if err then return nil, err end
 			table.insert(evaluatedArgs, evaluated)
@@ -38,10 +39,9 @@ function execute(command, system, functionArgs, directArgs)
 		return functionArgs[command.arg]
 	elseif command.callable then
 		return function(...)
-			return execute(setmetatable({callable = false}, {__index = command}), system, functionArgs, {...})
+			return execute(setmetatable({callable = false}, {__index = command}),
+					system, functionArgs, {...})
 		end
-	elseif command.values then
-		return execute({command = "list", args = command.values}, system, functionArgs)
 	elseif command.number then
 		return {command.number}
 	elseif command.string then
@@ -53,11 +53,14 @@ function execute(command, system, functionArgs, directArgs)
 		local context = setmetatable({cfg = evaluatedConfig}, {__index = system})
 		return cmd.exec(context, table.unpack(evaluatedArgs))
 	else
-		i(command)
 		return nil, ("Command %s not found"):format(command.command)
 	end
 end
 
 return function(line, system)
+	local err = check(line, system)
+	if err then
+		return nil, err
+	end
 	return execute(parse(line), system)
 end

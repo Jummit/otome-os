@@ -145,6 +145,14 @@ will execute
 range 1 4
 ```
 
+## Closures
+
+```
+
+give [1 2 3] !()
+```
+
 ## The Name
 
 Otome because I like the Otometsubaki flower. Any other meanings are accidental, but welcome.
+

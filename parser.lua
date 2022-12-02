@@ -9,16 +9,9 @@ local tokenize = require "tokenizer"
 local function parse(line)
   local tokens = tokenize(line)
   local cursor = 1
-  for _, v in ipairs(tokens) do
-    -- print(v.type, v.value or "")
-  end
 
   local function read()
     cursor = cursor + 1
-    local token = tokens[cursor - 1]
-    if token then
-      -- print(token.type, token.value or "")
-    end
     return tokens[cursor - 1]
   end
 
@@ -44,14 +37,14 @@ local function parse(line)
   end
 
   local function readList()
-    local list = {values = {}}
+    local list = {command = "list", args = {}}
     while true do
       local element = peek()
       if element.type == "]" then
         read()
         break
       end
-      table.insert(list.values, readCommand())
+      table.insert(list.args, readCommand())
     end
     return list
   end

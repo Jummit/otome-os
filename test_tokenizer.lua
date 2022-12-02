@@ -4,6 +4,7 @@ local tokenize = require "tokenizer"
 local inspect = require "inspect"
 local parse = require "parser"
 local execute = require "interpreter"
+local check = require "check"
 local system = require "system"
 i = function(v) print(require ("inspect")(v)) end
 
@@ -15,9 +16,14 @@ i = function(v) print(require ("inspect")(v)) end
 -- print(inspect(execute('join{with="\n"} [1 2 3]', system)))
 -- print(inspect(parse('join{with="\n"} [!1 $2 $3]')))
 system.functions.ma = parse('join [(!1 $2) 2]')
-print(inspect(parse('ma [(!1 $2) 2]')))
+-- i(check("ma !join !files 5", system))
+-- print(check("range !5 7", system))
+print(check("give !5 7", system))
+-- i(check("ma !join files", system))
+-- i(check("+ [1 2] 3", system))
+-- print(inspect(parse('ma [(!1 $2) 2]')))
 -- print(inspect(parse('a !join [1 2]')))
-print(inspect(execute('ma !join [1 2]', system)))
+-- print(inspect(execute('ma !join [1 2]', system)))
 
 -- cmd:A
 -- cmd:A, configKey

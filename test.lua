@@ -1,10 +1,8 @@
-#!/usr/bin/env lua5.3
-
 local parse = require "parser"
 local commands = require "commands"
 local inspect = require "inspect"
 local system = require "system"
-local execute = require "execute"
+local execute = require "interpreter"
 local copy = require("utils").copy
 
 local function tryParse(str)
@@ -31,8 +29,6 @@ local function assertExec(line, result)
 end
 
 local function all()
-local res = tryParse("describe")
-assertEq(res.cmd, commands.describe.exec)
 assertExec([["test string"]], {"test string"})
 assertExec([[write "more string" 'file]], {"INS file more string"})
 assertExec("+ (list 5 3 7)", {"15"})
