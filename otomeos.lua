@@ -30,20 +30,18 @@ local function main()
     local script = lines(read(system.dir..file))
     if #script == 0 then return "File doesn't exist or is empty" end
     for lineNum, line in ipairs(script) do
-      if #line > 0 and line:sub(1, 1) ~= "#" then
-        local res, err = executeLine(line)
-        if err then
-          return nil, string.format("Error in script %s line %s: %s", file,
-              lineNum, err)
+      local res, err = executeLine(line)
+      if err then
+        return nil, string.format("Error in script %s line %s: %s", file,
+            lineNum, err)
+      end
+      if type(res) == "string" then res = {res} end
+      for _, s in ipairs(res or {}) do
+        local action, exerr = system:execute(s)
+        if exerr then
+          return nil, exerr
         end
-        if type(res) == "string" then res = {res} end
-        for _, s in ipairs(res or {}) do
-          local action, exerr = system:execute(s)
-          if exerr then
-            return nil, exerr
-          end
-          table.insert(allRes, s)
-        end
+        table.insert(allRes, s)
       end
     end
     return allRes

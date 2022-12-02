@@ -7,7 +7,7 @@
 
 -- Characters which are used directly and act as word delimiters.
 local literal = {}
-for _, char in ipairs{"{", "}", "(", ")", "[", "]", "=", "$", "!"} do
+for _, char in ipairs{"{", "}", "(", ")", "[", "]", "=", "$", "!", "#"} do
 	literal[char] = true
 end
 

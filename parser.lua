@@ -65,6 +65,9 @@ local function parse(line)
       return nil, "Unexpected config start"
     elseif start.type == "}" then
       return nil, "Unexpected closing config bracket"
+    elseif start.type == "#" then
+      while read() do end
+      return nil
     elseif start.type == "(" then
       local cmd, err = readCommandWithArgs()
       if err then return nil, err end
