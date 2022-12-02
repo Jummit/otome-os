@@ -109,7 +109,8 @@ local function parse(line)
 
   function readCommandWithArgs()
     local command, err = readCommand()
-    if err then return nil, err end
+    if not command then return nil, err end
+    command.isParameter = false
     local after = peek()
     if after then
       local arg, argErr = readParameters()
@@ -119,6 +120,7 @@ local function parse(line)
     return command
   end
 
+  if not peek() then return nil end
   local cmd, err = readCommandWithArgs()
   if err then return nil, err end
   if cursor < #tokens then

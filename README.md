@@ -23,10 +23,15 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 ## TODO
 
 - [ ] example command to show usage of commands
+- [ ] add a documentation folder with some tutorials / explainations
 - [ ] add config to commands where it makes sense
 - [ ] type check config
 - [ ] parameter expansion
 - [ ] virtual execution of scripts (remove confirm)
+- [ ] rework tests
+- [ ] configuration for functions
+- [ ] closures
+- [ ] rework file system operations
 - [ ] allow documentation of user functions
 - [ ] multiple return values / vararg
 - [ ] folders and then also paths sigh.
@@ -34,12 +39,10 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [ ] define functions with config and parameters
 - [ ] save history to disk
 - [ ] pass functions to functions
-- [ ] escaping in strings
 - [ ] LSP
 - [ ] tree sitter grammar
 - [ ] categories for commands
 - [ ] job control (schedule tasks)
-- [ ] refactor this mess. maybe add type hints and comments?
 - [ ] difference between number, bool and string streams: type checking
 - [ ] port this whole thing to rust | use https://github.com/osch/lua-nocurses
 - [ ] autocompletion wow (need a custom text input for that)
@@ -68,6 +71,8 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [x] Flow control: loops (with 'give'), conditions (with 'when')
 - [x] commands have no side effects
 - [x] Wrote something useful with this: [AOC D1](https://www.reddit.com/r/adventofcode/comments/z9ezjb/comment/iyha7bf/?context=3)
+- [x] refactored the language and added some comments
+- [x] escaping in strings
 
 ## Timed Commands
 
@@ -114,8 +119,9 @@ These should replace aliases. (DONE)
 
 ```
 function 'myjoin{sep = "  "} (join $1 sep) 
-describe 'myjoin "Join strings by separator\n\nA longer example: myjoin{sep=}\n\n\nNOTE: this is pretty useless"
+describe 'myjoin "Join strings by separator\nNOTE: this is pretty useless"
 args 'myjoin ["separator"]
+example 'myjoin "A longer example: myjoin{sep=}"
 ```
 
 ## Passing Functions to Functions
@@ -145,11 +151,18 @@ will execute
 range 1 4
 ```
 
+## Configurating Custom Functions
+
+Custom functions can also use configurations:
+
+```
+function show{color="none"} join $color
+```
+
 ## Closures
 
 ```
-
-give [1 2 3] !()
+give [5 2 3] !($$1 give $$2 !(join [$$$1 $$$1]))
 ```
 
 ## The Name

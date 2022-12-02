@@ -30,6 +30,9 @@ local function checkParameters(command, expected)
   for argNum, arg in ipairs(command.args) do
     local expectedArg = expected[math.min(argNum, #expected)]
     if (arg.callable or false) ~= (expectedArg.callable or false) then
+      if arg.isParameter == false then
+        break
+      end
       if arg.callable then
         return ("Didn't expect callable for parameter %s to %s"):format(
             argNum, command.command)
@@ -44,7 +47,9 @@ end
 local function checkCommand(command, about)
 	local args = describeArgs(about.args)
 	local argCount = #(command.args or {})
-  if argCount < args.needed then
+  -- TODO: There needs to be better checking of parameters given to
+  -- callables.
+  if not command.callable and argCount < args.needed then
     return string.format("%s requires %s parameters (%s), got %s",
         command.command, args.needed, args.str, argCount)
 	elseif args.limit and argCount > args.limit then
@@ -94,7 +99,7 @@ return function(line, system)
     return
   end
   local command, err = parse(line)
-  if err then return err end
+  if not command then return err end
   err = check(command, system)
   cachedOk[command] = not err
   return err

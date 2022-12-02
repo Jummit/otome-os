@@ -4,6 +4,12 @@
 
 -- Executes a line of code.
 -- Parameters are evaluated first.
+-- There are four layers, each can result in an error:
+-- 
+-- 1. Lexer: Read tokens from string
+-- 2. Parser: Parse into abstract syntax tree
+-- 3. Interpreter: Execute the syntax tree
+-- 4. Commands: Process data
 
 local check = require "check"
 local parse = require "parser"
@@ -59,6 +65,10 @@ return function(line, system)
 	local err = check(line, system)
 	if err then return nil, err end
 	local res, parseErr = parse(line)
-	if parseErr then return nil, parseErr end
+	if parseErr then
+		return nil, parseErr
+	elseif not res then
+		return {}
+	end
 	return execute(res, system)
 end

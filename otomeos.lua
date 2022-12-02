@@ -57,21 +57,11 @@ local function main()
     elseif funName then
       return system:execute(("FUN %s %s"):format(funName, funBody))
     else
-      if line == "" or line == "x" then
-        for _, v in ipairs(lastResult) do
-          local err = system:execute(v)
-          if err then
-            return nil, err
-          end
-        end
-        lastResult = {}
-      else
-        return execute(line, system)
-      end
+      return execute(line, system)
     end
   end
 
-  -- executeScript("start")
+  showResult(executeScript("start"))
   if arg[1] == "--script" then
     showResult(executeScript(arg[2]))
     do return end
