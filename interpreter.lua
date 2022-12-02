@@ -37,7 +37,7 @@ function execute(command, system, functionArgs, directArgs)
 				args = command.args}, system, functionArgs)
 	elseif command.arg then
 		if not functionArgs then
-			return nil, ("Tried to use parameter %s outside"):format(command.arg)
+			return nil, ("Tried to use parameter %s outside of function"):format(command.arg)
 		end
 		return functionArgs[command.arg]
 	elseif command.callable then
@@ -70,5 +70,11 @@ return function(line, system)
 	elseif not res then
 		return {}
 	end
-	return execute(res, system)
+	res, err = execute(res, system)
+	if err then
+		return nil, err
+	elseif type(res) == "function" then
+		return nil, "Unexpected callable"
+	end
+	return res
 end

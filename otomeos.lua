@@ -35,13 +35,11 @@ local function main()
         return nil, string.format("Error in script %s line %s: %s", file,
             lineNum, err)
       end
-      if type(res) == "string" then res = {res} end
-      for _, s in ipairs(res or {}) do
-        local action, exerr = system:execute(s)
-        if exerr then
-          return nil, exerr
-        end
-        table.insert(allRes, s)
+      if type(res) == "string" then
+        res = {res}
+      end
+      for _, v in ipairs(res) do
+        table.insert(allRes, v)
       end
     end
     return allRes
@@ -55,7 +53,17 @@ local function main()
     elseif funName then
       return system:execute(("FUN %s %s"):format(funName, funBody))
     else
-      return execute(line, system)
+      local res, err = execute(line, system)
+      if err then return nil, err end
+      for i, s in ipairs(res or {}) do
+        local action, exerr = system:execute(s)
+        if exerr then
+          return nil, exerr
+        elseif action then
+          res[i] = action
+        end
+      end
+      return res
     end
   end
 

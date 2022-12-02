@@ -27,6 +27,9 @@ local function parse(line)
     assert(read().type == "{")
     local vals = {}
     local key = read()
+    if not key then
+      return nil, "Expected key value pairs inside config"
+    end
     while key.type ~= "}" do
       assert(read().type == "=")
       local val, err = readCommand()
@@ -40,6 +43,9 @@ local function parse(line)
     local list = {command = "list", args = {}}
     while true do
       local element = peek()
+      if not element then
+        return nil, "Expected list elements"
+      end
       if element.type == "]" then
         read()
         break
@@ -53,18 +59,31 @@ local function parse(line)
 
   function readCommand()
     local start = read()
-    if start.type == "number" then
+    if not start then
+      return nil, "Unclosed opening paranthesis"
+    elseif start.type == "number" then
       return { number = tostring(start.value) }
     elseif start.type == "string" then
       return { string = start.value }
     elseif start.type == "$" then
-      return { arg = tonumber(read().value) }
+      -- TODO: Parse named config parameters here.
+      local val = read()
+      if not val.value then
+        return nil, "Expected number after function parameter start"
+      end
+      local arg = tonumber(val.value)
+      if not arg then
+        return nil, ("Malformed function parameter: %s"):format(val.value)
+      end
+      return { arg = arg }
     elseif start.type == ")" then
       return nil, "Empty block"
     elseif start.type == "{" then
       return nil, "Unexpected config start"
     elseif start.type == "}" then
       return nil, "Unexpected closing config bracket"
+    elseif start.type == "=" then
+      return nil, "Unexpected equal sign"
     elseif start.type == "#" then
       while read() do end
       return nil
@@ -77,6 +96,9 @@ local function parse(line)
       end
       return cmd
     elseif start.type == "!" then
+      if not peek() then
+        return nil, "Expected command or number after callable start"
+      end
       if peek().type == "number" then
         return { callable = true, arg = read().value }
       end

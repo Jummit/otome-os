@@ -17,7 +17,7 @@ local write = filesystem.write
 
 local system = {
 	dir = "/home/jummit/.local/share/otomeos/",
-	trash = "/home/jummit/.local/share/otomeos/trash/",
+	old = "/home/jummit/.local/share/otomeos/old/",
 	history = require("history")(),
   commands = require "commands",
   functions = {},
@@ -34,17 +34,17 @@ end
 function system:execute(line)
   local cmd, param, data = line:match("(%S+) (.-) (.+)")
   if not param then return end
-  local tmpName = tostring(math.random())
+  local tmpName = self.old..tostring(math.random())
   local file = self.dir..param
   if cmd == "NEW" then
     return self.history:addAction("Created "..param,
       function()
-        os.rename(file, self.trash..tmpName)
+        os.rename(file, tmpName)
         write(file, "")
       end,
       function()
         os.remove(file)
-        os.rename(self.trash..tmpName, file)
+        os.rename(tmpName, file)
       end
     )
   elseif cmd == "DEL" then
@@ -55,13 +55,15 @@ function system:execute(line)
   elseif cmd == "MOV" then
     -- TODO: Implement move
   elseif cmd == "INS" then
-    -- TODO: Implement inserting actual text
-    local file
-    param = strip(param:gsub("^%S+", function(e) file = e return "" end, 1))
-    local old = self.files[param]
     return self.history:addAction("Inserted into "..file,
-      function() self.files[file] = join(old or {}, {param}) end,
-      function() self.files[file] = old end
+      function()
+        os.rename(file, tmpName)
+        write(file, data)
+      end,
+      function()
+        os.remove(file)
+        os.rename(tmpName, file)
+      end
     )
   elseif cmd == "FUN" then
     local err = check(data, self)
