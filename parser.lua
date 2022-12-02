@@ -7,6 +7,8 @@
 local tokenize = require "tokenizer"
 
 local function parse(line)
+  assert(type(line) == "string")
+
   local tokens = tokenize(line)
   local cursor = 1
 
@@ -58,7 +60,9 @@ local function parse(line)
     elseif start.type == "$" then
       return { arg = tonumber(read().value) }
     elseif start.type == "(" then
-      return readCommandWithArgs()
+      local cmd = readCommandWithArgs()
+      read()
+      return cmd
     elseif start.type == "!" then
       if peek().type == "number" then
         return { callable = true, arg = read().value }
@@ -84,9 +88,6 @@ local function parse(line)
     while arg and arg.type ~= "}" and arg.type ~= ")" do
       table.insert(args, readCommand())
       arg = peek()
-    end
-    if arg and arg.type == ")" then
-      read()
     end
     return args
   end

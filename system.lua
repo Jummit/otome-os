@@ -64,10 +64,10 @@ function system:execute(line)
       function() self.files[file] = old end
     )
   elseif cmd == "FUN" then
-    local parsedCmd, err = parse(data, self.commands, self.functions)
-    if not parsedCmd then return err end
-    err = check(parsedCmd, self.commands)
-  	if err then return err end
+    local err = check(data, self)
+  	if err then return nil, err end
+    local parsedCmd, parseErr = parse(data)
+    if not parsedCmd then return nil, parseErr end
     parsedCmd.definition = data
     local before = self.functions[param]
     return self.history:addAction("Registered function "..param,

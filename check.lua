@@ -12,7 +12,10 @@ local cachedOk = {}
 local function collectArguments(command, args)
   args = args or {}
   if command.arg then
-    table.insert(args, command)
+    -- TODO: Confirm that commands are uniform, starting from one.
+    -- TODO: Check type compatibility. Can't use same command for
+    -- different types.
+    args[command.arg] = command
   end
   for _, arg in ipairs(command.args or {}) do
     collectArguments(arg, args)
@@ -21,8 +24,12 @@ local function collectArguments(command, args)
 end
 
 local function checkParameters(command, expected)
+  if not command.args then
+    return
+  end
   for argNum, arg in ipairs(command.args) do
-    if (arg.callable or false) ~= (expected[argNum].callable or false) then
+    local expectedArg = expected[math.min(argNum, #expected)]
+    if (arg.callable or false) ~= (expectedArg.callable or false) then
       if arg.callable then
         return ("Didn't expect callable for parameter %s to %s"):format(
             argNum, command.command)
@@ -36,14 +43,19 @@ end
 
 local function checkCommand(command, about)
 	local args = describeArgs(about.args)
-	local argCount = #command.args
+	local argCount = #(command.args or {})
   if argCount < args.needed then
     return string.format("%s requires %s parameters (%s), got %s",
         command.command, args.needed, args.str, argCount)
 	elseif args.limit and argCount > args.limit then
-    return string.format(
-        "%s only takes %s parameters (%s), got %s\ntry passing multiple parameters as a [list]",
-				command.command, args.limit or args.needed, args.str, argCount)
+    if args.limit == 0 then
+      return ("%s doesn't take any parameters, but got %s"):format(
+          command.command, #command.args)
+    else
+      return string.format(
+          "%s only takes %s parameters (%s), got %s\ntry passing multiple parameters as a [list]",
+  				command.command, args.limit or args.needed, args.str, argCount)
+    end
   end
   local expected = {}
   for _, arg in ipairs(about.args) do
@@ -54,11 +66,11 @@ end
 
 local function checkFunction(func, content)
   local args = collectArguments(content)
-  if #func.args ~= #args then
+  if not func.callable and #(func.args or {}) ~= #args then
     return ("Expected %s parameters for function %s, got %s"):format(
-        #args, func.command, #func.args)
+        #(args or {}), func.command, #(func.args or {}))
   end
-  return checkParameters(func.args, args)
+  return checkParameters(func, args)
 end
 
 local check
@@ -77,6 +89,7 @@ function check(command, system)
 end
 
 return function(line, system)
+  assert(type(line) == "string")
   if cachedOk[line] then
     return
   end
