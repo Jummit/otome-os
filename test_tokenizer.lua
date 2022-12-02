@@ -19,7 +19,7 @@ i = function(v) print(require ("inspect")(v)) end
 -- i(check("ma !join !files 5", system))
 -- print(check("range !5 7", system))
 -- print(check("give !5 7", system))
-local res, err = execute("give !files ! { }7)", system)
+local res, err = execute("give !files { }7)", system)
 print(err)
 i(res)
 -- i(check("ma !join files", system))

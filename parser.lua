@@ -61,6 +61,8 @@ local function parse(line)
       return { arg = tonumber(read().value) }
     elseif start.type == ")" then
       return nil, "Empty block"
+    elseif start.type == "{" then
+      return nil, "Unexpected config start"
     elseif start.type == "}" then
       return nil, "Unexpected closing config bracket"
     elseif start.type == "(" then
