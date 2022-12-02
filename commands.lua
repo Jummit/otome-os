@@ -215,7 +215,7 @@ commands.give = {desc = "Execute a command for every set of values\nEach output 
         table.insert(args, {val})
       end
       local res, err = command(table.unpack(args))
-      if not res then return {err} end
+      if not res then return nil, err end
       for _, val in ipairs(res) do
         table.insert(o, val)
       end
@@ -374,6 +374,6 @@ addMath("/", function(a, b) return a / b end)
 addMath("%", function(a, b) return a % b end)
 addCmp(">", function(a, b) return a > b end)
 addCmp("<", function(a, b) return a < b end)
-addCmp("=", function(a, b) return a == b end)
+addCmp("equal", function(a, b) return a == b end)
 
 return commands

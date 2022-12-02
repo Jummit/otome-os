@@ -24,59 +24,65 @@ local function main()
     end
   end
 
+  local executeLine
   local function executeScript(file)
-    lastResult = {}
+    local allRes = {}
     local script = lines(read(system.dir..file))
     if #script == 0 then return "File doesn't exist or is empty" end
     for lineNum, line in ipairs(script) do
       if #line > 0 and line:sub(1, 1) ~= "#" then
-        local res, err = execute(line, system)
-        if not res then print(string.format("Error in script %s line %s: %s", file, lineNum, err)) break end
-        for _, s in ipairs(res) do
+        local res, err = executeLine(line)
+        if err then
+          return nil, string.format("Error in script %s line %s: %s", file,
+              lineNum, err)
+        end
+        if type(res) == "string" then res = {res} end
+        for _, s in ipairs(res or {}) do
           local pretty = s:gsub("\n", "\\n")
           local action, exerr = system:execute(s)
           if exerr then
-            print(exerr)
-            break
+            return nil, exerr
           end
           if not action then
             print(pretty)
           end
-          table.insert(lastResult, s)
+          table.insert(allRes, s)
         end
+      end
+    end
+    return allRes
+  end
+
+  function executeLine(line)
+    local file = line:match("run (%w+)")
+    local funName, funBody = line:match("^function (%S+)%s?(.*)")
+    if file then
+      return executeScript(file)
+    elseif funName then
+      return system:execute(("FUN %s %s"):format(funName, funBody))
+    else
+      if line == "" or line == "x" then
+        for _, v in ipairs(lastResult) do
+          local err = system:execute(v)
+          if err then
+            return nil, err
+          end
+        end
+        lastResult = {}
+      else
+        return execute(line, system)
       end
     end
   end
 
   -- executeScript("start")
   if arg[1] == "--script" then
-    executeScript(arg[2])
+    showResult(executeScript(arg[2]))
     do return end
   end
   while true do
     io.write("> ")
-    local line = io.read()
-    local file = line:match("run (%w+)")
-    local funName, funBody = line:match("^function (%S+)%s?(.*)")
-    if file then
-      executeScript(file)
-    elseif funName then
-      local err = system:execute(("FUN %s %s"):format(funName, funBody))
-      if err then print(err) end
-    else
-      if line == "" or line == "x" then
-        for _, v in ipairs(lastResult) do
-          local err = system:execute(v)
-          if err then
-            print(err)
-            break
-          end
-        end
-        lastResult = {}
-      else
-        showResult(execute(line, system))
-      end
-    end
+    showResult(executeLine(io.read()))
   end
 end
 

@@ -68,11 +68,10 @@ local function parse(line)
       return readCommandWithArgs()
     elseif start.type == "!" then
       if peek().type == "number" then
-        return { callableArg = read().value }
+        return { callable = true, arg = read().value }
       end
       local command = readCommand()
-      command.callable = command.command
-      command.command = nil
+      command.callable = true
       return command
     elseif start.type == "[" then
       return readList()
