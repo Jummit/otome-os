@@ -32,7 +32,8 @@ local function parse(line)
         break
       end
       assert(read().type == "=")
-      local val = readCommand()
+      local val, err = readCommand()
+      if err then return nil, err end
       vals[key.value] = val
     end
     return vals
@@ -46,7 +47,9 @@ local function parse(line)
         read()
         break
       end
-      table.insert(list.args, readCommand())
+      local arg, err = readCommand()
+      if err then return nil, err end
+      table.insert(list.args, arg)
     end
     return list
   end
@@ -59,15 +62,22 @@ local function parse(line)
       return { string = start.value }
     elseif start.type == "$" then
       return { arg = tonumber(read().value) }
+    elseif start.type == ")" then
+      return nil, "Empty block"
     elseif start.type == "(" then
-      local cmd = readCommandWithArgs()
-      read()
+      local cmd, err = readCommandWithArgs()
+      if err then return nil, err end
+      local last = read()
+      if not last or last.type ~= ")" then
+        return nil, "Expected closing parenthesis"
+      end
       return cmd
     elseif start.type == "!" then
       if peek().type == "number" then
         return { callable = true, arg = read().value }
       end
-      local command = readCommand()
+      local command, err = readCommand()
+      if err then return nil, err end
       command.callable = true
       return command
     elseif start.type == "[" then
@@ -77,7 +87,9 @@ local function parse(line)
     command.command = start.value
     local after = peek()
     if after and after.type == "{" then
-      command.config = readConfig()
+      local conf, err = readConfig()
+      if err then return nil, err end
+      command.config = conf
     end
     return command
   end
@@ -86,22 +98,32 @@ local function parse(line)
     local args = {}
     local arg = peek()
     while arg and arg.type ~= "}" and arg.type ~= ")" do
-      table.insert(args, readCommand())
+      local res, err = readCommand()
+      if err then return nil, err end
+      table.insert(args, res)
       arg = peek()
     end
     return args
   end
 
   function readCommandWithArgs()
-    local command = readCommand()
+    local command, err = readCommand()
+    if err then return nil, err end
     local after = peek()
     if after then
-      command.args = readParameters()
+      local arg, argErr = readParameters()
+      if argErr then return nil, argErr end
+      command.args = arg
     end
     return command
   end
 
-  return readCommandWithArgs()
+  local cmd, err = readCommandWithArgs()
+  if err then return nil, err end
+  if cursor < #tokens then
+    return nil, "Unexpected closing parenthesis"
+  end
+  return cmd
 end
 
 return parse

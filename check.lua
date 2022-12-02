@@ -58,7 +58,7 @@ local function checkCommand(command, about)
     end
   end
   local expected = {}
-  for _, arg in ipairs(about.args) do
+  for _, arg in ipairs(about.args or {}) do
     table.insert(expected, {callable = arg:sub(1, 1) == "!"})
   end
   return checkParameters(command, expected)

@@ -26,15 +26,12 @@ function execute(command, system, functionArgs, directArgs)
 		evaluatedConfig[k] = execute(v, system, functionArgs)
 	end
 
-	if command.callable and command.arg then
+	if command.callable and command.arg and functionArgs then
 		return execute({command = functionArgs[command.callableArg],
 				args = command.args}, system, functionArgs)
 	elseif command.arg then
 		if not functionArgs then
-			return nil, "Not in function"
-		end
-		if not functionArgs[command.arg] then
-			return nil, "Function got not enough params"
+			return nil, ("Tried to use parameter %s outside"):format(command.arg)
 		end
 		return functionArgs[command.arg]
 	elseif command.callable then
@@ -58,9 +55,10 @@ function execute(command, system, functionArgs, directArgs)
 end
 
 return function(line, system)
+	assert(type(line) == "string")
 	local err = check(line, system)
-	if err then
-		return nil, err
-	end
-	return execute(parse(line), system)
+	if err then return nil, err end
+	local res, parseErr = parse(line)
+	if parseErr then return nil, parseErr end
+	return execute(res, system)
 end
