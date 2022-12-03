@@ -140,7 +140,7 @@ e("repeat !fun -1", ERR)
 e("repeat !fun 'a", ERR)
 e("repeat !fun void", ERR)
 
-e("void")
+e("void", {})
 
 -- Manipulation --
 e("change [1 1 2 3] [1 2] [2 1]", {2, 2, 1, 3})
@@ -148,12 +148,22 @@ e("change [1 1 2 3] [1 2] [1]", ERR)
 e("change void [1 2] [1]", {})
 e("change [!a 1 2 3] [1 2] [2 1]", ERR)
 
-e("delete")
+e("remove 1 [1 1 2 3 1]", {2, 3})
+e("remove 1 void", {})
+e("remove void [1 1 2 3 1]", {1, 1, 2, 3, 1})
 
-e("remove")
-e("unique")
-e("sort")
-e("trim")
+e("unique void", {})
+e("unique [1 2 3 1 3]", {1, 2, 3})
+
+e("sort [1 -5 -6]", {-6, -5, 1})
+e("sort [1 'a -5 -6 '<]", {-5, -6, 1, "<", "a"})
+
+e("trim [1 2 3] 2", {3})
+e("trim [1 2 3] -2", {1})
+e("trim [1 2 3] -5", {})
+e("trim [1 2 3] 0", {1, 2, 3})
+e("trim [1 2 3] void", {1, 2, 3})
+e("trim [1 2 3] 'a", {1, 2, 3})
 
 e("removeat")
 e("shuffle")
@@ -191,6 +201,7 @@ e("redo", {})
 -- File System --
 e("files", {})
 
+e("delete")
 e("new")
 e("read")
 

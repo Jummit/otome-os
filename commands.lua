@@ -6,6 +6,15 @@ local utils = require("utils")
 local describeArgs = require "describeArgs"
 local keys, escape, map, join, shuffle, split = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle, utils.split
 
+local function intArg(command, param, val)
+  if not val[1] then
+    return nil, ('Got no value for parameter "%s" of command "%s"'):format(param, command)
+  elseif not tonumber(val[1]) then
+    return nil, ('Expected number for parameter "%s" of command "%s", got "%s"'):format(param, command, val[1])
+  end
+  return tonumber(val[1])
+end
+
 local commands = {}
 commands.commands = {desc = "Show a list of available commands",
 	exec = function(_)
@@ -72,15 +81,9 @@ commands.every = {desc = "Get every nth value from a stream",
 	exec = function(_, nth, inp)
     local o = {}
     local s = 1
-    local by = tonumber(nth[1])
+    local by, err = intArg("every", "nth", nth)
+    if err then return nil, err end
     local to = #inp
-    if not nth[1] then
-      return nil, 'Expected value for "every"'
-    elseif by == 0 then
-      return nil, 'Can\'t get every zero\'th element in command "every"'
-    elseif not by then
-      return nil, ('Expected number, got "%s" for "every"'):format(nth[1])
-    end
     if by < 0 then
       s = #inp
       to = 1
@@ -307,14 +310,20 @@ commands.removeat = {desc = "Remove values at indices",
     return o
   end
 }
-commands.trim = {desc = "Remove values from the stream", args = {"stream", "amount"}, exec = function(_, stream, count)
-  -- TODO: allow trimming from the back
-  -- stream = copy(stream)
-  for _ = 1, tonumber(count[1]) do
-    table.remove(stream, 1)
+commands.trim = {desc = "Remove values from the stream",
+  args = {"stream", "amount"}, exec = function(_, stream, count)
+    local o = {}
+    local am = tonumber(count[1])
+    local from, to = am + 1, #stream
+    if am < 0 then
+      from, to = 1, #stream + am
+    end
+    for i = from, to do
+      table.insert(o, stream[i])
+    end
+    return o
   end
-  return stream
-end}
+}
 commands.time = {desc = "Show the time", exec = function(ctx)
   local part = (ctx.cfg.part or {})[1]
   if part then
@@ -361,10 +370,8 @@ commands["repeat"] = {
     if not times[1] then
       return nil, "Got no value for repeat times"
     end
-    local num = tonumber(times[1])
-    if not num then
-      return nil, ('Expected number, got "%s" for times of "repeat"'):format(times[1])
-    end
+    local num, err = intArg("repeat", "times", times)
+    if err then return nil, err end
     if num < 1 then
       return nil, ('Can\'t repeat call %s times'):format(num)
     end
@@ -432,21 +439,12 @@ commands.unique = {desc = "Return stream with unique values",
 }
 commands.range = {desc = "Generate a sequence of numbers", args = {"from", "to"}, exec = function(_, from, to)
   local t = {}
-  if not from[1] then
-    return nil, 'Got no "from" parameter for range'
-  elseif not to[1] then
-    return nil, 'Got no "to" parameter for range'
-  end
-  local fromi = tonumber(from[1])
-  local toi = tonumber(to[1])
-  if not fromi then
-    return nil, ('Parameter "from" for range is no number: %s'):format(from[1])
-  elseif not toi then
-    return nil, ('Parameter "to" for range is no number: %s'):format(to[1])
-  end
+  local from, fromErr = intArg("range", "from", from)
+  local to, toErr = intArg("range", "to", to)
+  if fromErr or toErr then return nil, fromErr or toErr end
   -- TODO: Use all numbers from from and to.
   -- TODO: Add step parameter
-  for i = fromi, toi, toi > fromi and 1 or -1 do
+  for i = from, to, to > from and 1 or -1 do
     table.insert(t, tostring(i))
   end
   return t
