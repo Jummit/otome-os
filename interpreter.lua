@@ -17,12 +17,15 @@ local parse = require "parser"
 local execute
 function execute(command, system, functionArgs, directArgs)
 	if command.args and #command.args > 0 and command.callable then
-		return function(...)
-			local cmd = setmetatable({callable = false}, {__index = command})
-			local err = check(cmd, system)
-			if err then return nil, "Error in 'give' command: "..err end
-			return execute(cmd, system, {...})
-		end
+		return {
+			call = function(...)
+				local cmd = setmetatable({callable = false}, {__index = command})
+				local err = check(cmd, system)
+				if err then return nil, "Error in 'give' command: "..err end
+				return execute(cmd, system, {...})
+			end,
+			command = command,
+		}
 	end
 	local evaluatedArgs = {}
 	if not directArgs then
@@ -49,12 +52,15 @@ function execute(command, system, functionArgs, directArgs)
 		end
 		return functionArgs[command.arg]
 	elseif command.callable then
-		return function(...)
-			local cmd = setmetatable({callable = false, args = {...}}, {__index = command})
-			local err = check(cmd, system)
-			if err then return nil, "Error in 'give' command: "..err end
-			return execute(cmd, system, functionArgs, {...})
-		end
+		return {
+			call = function(...)
+				local cmd = setmetatable({callable = false, args = {...}}, {__index = command})
+				local err = check(cmd, system)
+				if err then return nil, "Error in 'give' command: "..err end
+				return execute(cmd, system, functionArgs, {...})
+			end,
+			command = command,
+		}
 	elseif command.number then
 		return {command.number}
 	elseif command.string then
@@ -64,7 +70,10 @@ function execute(command, system, functionArgs, directArgs)
 	elseif system.commands[command.command] then
 		local cmd = system.commands[command.command]
 		local context = setmetatable({cfg = evaluatedConfig}, {__index = system})
-		return cmd.exec(context, table.unpack(evaluatedArgs))
+		local res, err = cmd.exec(context, table.unpack(evaluatedArgs))
+		if err then return nil, err end
+		assert(type(res) == "table", ('Command "%s" didn\'t return a list'):format(command.command))
+		return res
 	else
 		return nil, ("Command %s not found"):format(command.command)
 	end

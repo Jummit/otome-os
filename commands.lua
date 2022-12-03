@@ -57,6 +57,9 @@ commands.change = {desc = "Replace values", args = {"values", "old", "new"},
       o[i] = value
       for j, oldval in ipairs(old) do
         if value == oldval then
+          if not new[j] then
+            return nil, ('No new value to replace index %s in command "change": expected %s new values, got %s'):format(i, #old, #new)
+          end
           o[i] = new[j] or ""
         end
       end
@@ -252,16 +255,25 @@ commands.resize = {desc = "Extend the stream", args = {"stream", "length"},
     return o
   end
 }
-commands.at = {desc = "Get value at indices", args = {"indices", "stream"}, exec = function(_, indices, stream)
-  local o = {}
-  for _, i in ipairs(indices) do
-    local val = stream[tonumber(i)]
-    if val then
-      table.insert(o, val)
+commands.at = {desc = "Get value at indices", args = {"indices", "stream"},
+  exec = function(_, indices, stream)
+    local o = {}
+    for _, i in ipairs(indices) do
+      local num = tonumber(i)
+      if not num then
+        return nil, ('Can\'t use word "%s"as index for "at"'):format(i)
+      end
+      if num < 0 then
+        num = #stream + num + 1
+      end
+      local val = stream[num]
+      if val then
+        table.insert(o, val)
+      end
     end
+    return o
   end
-  return o
-end}
+}
 commands.removeat = {desc = "Remove values at indices",
   args = {"indices", "stream"}, exec = function(_, indices, stream)
     local o = {}
@@ -424,21 +436,23 @@ commands.redo = {desc = "Redo an operation", args = {"?number of operations"}, e
   end
   return actions
 end}
-commands.describe = {desc = "Show help for the given commands", args = {"*commands"}, exec = function(ctx, helpFor)
-  assert(type(helpFor) == "table")
-  return map(helpFor, function(c)
-    if ctx.functions[c] then
-      return ctx.functions[c].definition
-    elseif not commands[c] then
-      return ""
-    end
-    return commands[c].desc
-  end)
+commands.describe = {desc = "Show help for the given commands", args = {"!command"}, exec = function(ctx, helpFor)
+  -- TODO: Allow adding function descriptions here.
+  if ctx.functions[helpFor.command.command] then
+    return {ctx.functions[helpFor.command.command].definition}
+  end
+  if commands[helpFor.command.command] then
+    return {commands[helpFor.command.command].desc}
+  end
+  -- TODO: Maybe just show the source code of the closure here.
+  return nil, "Can't get description of closure."
 end}
-commands.arguments = {desc = "Show args of a command", args = {"*commands"}, exec = function(_, helpFor)
-  return map(helpFor, function(c)
-    return describeArgs(commands[c].args).str
-  end)
+commands.arguments = {desc = "Show args of a command", args = {"!command"}, exec = function(_, callable)
+  if commands[callable.command.command] then
+    return commands[callable.command.command].args or {}
+  end
+  -- TODO: Collect function parameters.
+  return nil, "Can't get parameters of closure"
 end}
 commands.join = {desc = "Join a list of words", args = {"words"}, exec = function(ctx, words)
   local every = 1000
@@ -493,6 +507,9 @@ local function addMath(char, fn)
         if not o then return {} end
 			else
         local num = tonumber(n)
+        if not num then
+          return nil, ('Can\'t do math operation %s with word "%s"'):format(char, n)
+        end
         if num then
   				o = fn(o, num)
         end
@@ -514,6 +531,9 @@ local function addCmp(char, fn)
         if not o then return {} end
 			else
         local num = tonumber(n)
+        if not num then
+          return nil, ("Can't compare %s with numbers. Use 'sort' if you want to sort words instead."):format(n)
+        end
         if not fn(o, num) then
           return {}
         end
