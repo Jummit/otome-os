@@ -1,78 +1,22 @@
-local parse = require "parser"
-local commands = require "commands"
-local inspect = require "inspect"
-local system = require "system"
-local execute = require "interpreter"
-local copy = require("utils").copy
+#!/usr/bin/env lua5.4
+local system = require("system")
+local inspect = require("inspect")
 
-local function tryParse(str)
-	local res, err = parse(str, commands, system.functions)
+local function e(command, result)
+	local res, err = system:executeLine(command)
 	if not res then
-		error(err)
+		error(('Error in command "%s": %s'):format(command, err))
 	end
-	return res
-end
 
-local function assertEq(a, b, m)
-	a, b = inspect(a), inspect(b)
-	if a ~= b and m then print("Failure in '"..m.."':") end
-	assert(a == b, string.format("%s ~= %s", a, b))
-end
+	if type(result) == "string" then
+		result = {result}
+	end
 
-local function assertExec(line, result)
-	local res, err = execute(line, system)
-	if err then error(err) end
-	if not res then error(string.format("Command didn't return a value: '%s'", line)) end
-	if result then
-		assertEq(copy(res), copy(result), line)
+	local a, b = inspect(res), inspect(result)
+	if a ~= b then
+		print(('Command "%s" has wrong result:\n%s\nis not\n%s'):format(command, a, b))
+		os.exit(1)
 	end
 end
 
-local function all()
-assertExec([["test string"]], {"test string"})
-assertExec([[write "more string" 'file]], {"INS file more string"})
-assertExec("+ (list 5 3 7)", {"15"})
-assertExec("+ [5 3 7]", {"15"})
-
-execute("read 'test.lua", system)
-
-local _, err = execute("describe", system)
-assertEq(type(err), "string")
-
-_, err = execute("describe etime", system)
-assertEq(type(err), "string")
-
-assertExec('function about (combine $1 (resize ": " 100) (!2 $1))')
-system:execute('FUN about combine $1 (resize ": " 100) (!2 $1)')
-assertExec("about functions !describe", {'about :  combine $1 (resize ": " 100) (!2 $1)'})
-execute('combine commands (resize ":   " 100) (describe commands', system)
-execute("columns 'a 'b", system)
-assertExec("arguments 'combine", { "one or more streams to combine"})
-assertExec("time{part = 'day time=-1}", { tostring(os.date("*t").day)})
-assertExec("time{ part = 'day time=-1}", { tostring(os.date("*t").day)})
-assertExec("- ['5 5]", {"0"})
-assertExec("list time{part='year}", {tostring(os.date("*t").year)})
-assertExec("function day (time {part='day})", {"FUN day time {part='day}"})
-system:execute("FUN day time {part='day}")
-assertExec("day", {tostring(os.date("*t").day)})
-assertExec("sort day", {tostring(os.date("*t").day)})
-assertExec("function help (sort (columns commands (arguments commands) (describe commands)))")
-system:execute("FUN help sort (columns commands (arguments commands) (describe commands))")
-assertExec("sort help")
--- assertExec('function myjoin{sep = "  "} (join $1 sep)', "")
-assertExec("function two (list $1 $2)")
-system:execute("FUN two list $1 $2")
-assertExec("two 1 2", {"1", "2"})
-system:execute('FUN call !1')
-assertExec("call !commands")
-system:execute("FUN a !1")
-system:execute("FUN h 'a")
-assertExec("give !read files")
-assertExec("a !h")
-end
-return {
-	all = all,
-	assertEq = assertEq,
-	assertExec = assertExec,
-	system = system,
-}
+e([[write 'water 'lake]], "water")

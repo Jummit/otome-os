@@ -19,7 +19,6 @@ local function main()
     end
   end
 
-
   showResult(system:executeScript("start"))
   if arg[1] == "--script" then
     showResult(system:executeScript(arg[2]))

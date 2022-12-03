@@ -30,7 +30,6 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [ ] virtual execution of scripts (remove confirm)
 - [ ] rework tests
 - [ ] configuration for functions
-- [ ] closures
 - [ ] rework file system operations
 - [ ] allow documentation of user functions
 - [ ] multiple return values / vararg
@@ -73,6 +72,7 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [x] Wrote something useful with this: [AOC D1](https://www.reddit.com/r/adventofcode/comments/z9ezjb/comment/iyha7bf/?context=3)
 - [x] refactored the language and added some comments
 - [x] escaping in strings
+- [x] closures
 
 ## Timed Commands
 
@@ -162,7 +162,7 @@ function show{color="none"} join $color
 ## Closures
 
 ```
-give [5 2 3] !($$1 give $$2 !(join [$$$1 $$$1]))
+give [5 2 3] !($1 give $2 !(join [$1 $1]))
 ```
 
 ## The Name
