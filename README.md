@@ -17,8 +17,6 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 * Commands can be called to return a list
 * Arguments are commands that return lists
 * The result of the root is shown
-* Commands have no side effects
-* Output of commands is sent to system, which has a separate command syntax
 
 ## TODO
 

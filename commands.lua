@@ -205,6 +205,9 @@ commands.void = {desc = "Void the output",
     return {}
 	end
 }
+commands.void = {desc = "Return nothing",
+	exec = function() return {} end
+}
 commands.split = {desc = "Split the strings",
 	args = {"*strings"}, exec = function(ctx, strings)
     local r = {}
@@ -495,20 +498,28 @@ local function addMath(char, fn)
         end
 			end
 		end
+    if not o then
+      return {}
+    end
 		return {tostring(o)}
 	end}
 end
 
 local function addCmp(char, fn)
 	commands[char] = {desc = string.format("Compare input with %s", char), args = {"numbers"}, exec = function(_, nums)
-    local first = tonumber(table.remove(nums, 1))
-    if not first then return {} end
+		local o
 		for _, n in ipairs(nums) do
-			if not fn(first, tonumber(n)) then
-        return {}
+			if not o then
+				o = tonumber(n)
+        if not o then return {} end
+			else
+        local num = tonumber(n)
+        if not fn(o, num) then
+          return {}
+        end
 			end
 		end
-    return {tostring(first)}
+		return nums
 	end}
 end
 
