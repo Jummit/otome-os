@@ -16,6 +16,14 @@ local parse = require "parser"
 
 local execute
 function execute(command, system, functionArgs, directArgs)
+	if command.args and #command.args > 0 and command.callable then
+		return function(...)
+			local cmd = setmetatable({callable = false}, {__index = command})
+			local err = check(cmd, system)
+			if err then return nil, "Error in 'give' command: "..err end
+			return execute(cmd, system, {...})
+		end
+	end
 	local evaluatedArgs = {}
 	if not directArgs then
 		for _, arg in ipairs(command.args or {}) do

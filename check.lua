@@ -27,7 +27,7 @@ local function checkParameters(command, expected)
   for argNum, arg in ipairs(command.args) do
     local expectedArg = expected[math.min(argNum, #expected)]
     if (arg.callable or false) ~= (expectedArg.callable or false) then
-      if arg.isParameter == false then
+      if arg.hasArgs then
         break
       end
       if arg.callable then

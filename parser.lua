@@ -60,6 +60,9 @@ local function parse(line)
     return list
   end
 
+  function readClosure()
+  end
+
   function readCommand()
     local start = read()
     if not start then
@@ -138,7 +141,7 @@ local function parse(line)
   function readCommandWithArgs()
     local command, err = readCommand()
     if not command then return nil, err end
-    command.isParameter = false
+    command.hasArgs = true
     local after = peek()
     if after then
       local arg, argErr = readParameters()
