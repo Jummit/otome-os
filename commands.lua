@@ -50,6 +50,20 @@ commands.replace = {desc = "Find and replace inside the stream",
 	  end)
 	end
 }
+commands.change = {desc = "Replace values", args = {"values", "old", "new"},
+  exec = function(_, values, old, new)
+    local o = {}
+    for i, value in ipairs(values) do
+      o[i] = value
+      for j, oldval in ipairs(old) do
+        if value == oldval then
+          o[i] = new[j] or ""
+        end
+      end
+    end
+    return o
+  end,
+}
 commands.every = {desc = "Get every nth value from a stream",
 	args = {"nth", "stream"},
 	exec = function(_, nth, inp)
@@ -281,7 +295,7 @@ end}
 commands.give = {desc = "Execute a command for every set of values\nEach output is added to the output stream",
   args = {"!command", "*values"}, exec = function(ctx, command, ...)
     local streams = {...}
-    local v = 1
+    local v = 0
     local o = {}
     local params = 1
     if ctx.cfg.args then
@@ -294,7 +308,7 @@ commands.give = {desc = "Execute a command for every set of values\nEach output 
       for _, stream in ipairs(streams) do
         local sa = {}
         for i = v * params, v * params + params - 1 do
-          local val = stream[i]
+          local val = stream[i + 1]
           if not val then return o end
           table.insert(sa, val)
         end
