@@ -162,11 +162,14 @@ e("trim [1 2 3] 2", {3})
 e("trim [1 2 3] -2", {1})
 e("trim [1 2 3] -5", {})
 e("trim [1 2 3] 0", {1, 2, 3})
-e("trim [1 2 3] void", {1, 2, 3})
-e("trim [1 2 3] 'a", {1, 2, 3})
+e("trim [1 2 3] void", ERR)
+e("trim [1 2 3] 'a", ERR)
 
-e("removeat")
-e("shuffle")
+e("removeat [1 5 -3] [1 2 3 4 5]", {2, 4})
+e("removeat [1 'a -3] [1 2 3 4 5]", ERR)
+e("removeat [1 5 -3] [1 2]", {2})
+
+e("shuffle [1 2 3]")
 
 -- Strings --
 e("characters 'abc1", {"a", "b", "c", 1})

@@ -87,6 +87,8 @@ commands.every = {desc = "Get every nth value from a stream",
     if by < 0 then
       s = #inp
       to = 1
+    elseif by == 0 then
+      return nil, "Can't get every 0th element"
     end
     -- TODO: Allow variable distances.
     for i = s, to, by do
@@ -298,7 +300,13 @@ commands.removeat = {desc = "Remove values at indices",
     for i, val in ipairs(stream) do
       local insert = true
       for _, r in ipairs(indices) do
-        if tonumber(r) == i then
+        local num = tonumber(r)
+        if not num then
+          return nil, ('Expected number for index in command "removeat", got "%s"'):format(r)
+        elseif num == 0 then
+          return nil, 'Can\'t use zero as index in command "removeat"'
+        end
+        if num == i or #stream + num + 1 == i then
           insert = false
           break
         end
@@ -313,7 +321,8 @@ commands.removeat = {desc = "Remove values at indices",
 commands.trim = {desc = "Remove values from the stream",
   args = {"stream", "amount"}, exec = function(_, stream, count)
     local o = {}
-    local am = tonumber(count[1])
+    local am, err = intArg("trim", "count", count)
+    if err then return nil, err end
     local from, to = am + 1, #stream
     if am < 0 then
       from, to = 1, #stream + am
