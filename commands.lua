@@ -4,7 +4,7 @@
 
 local utils = require("utils")
 local describeArgs = require "describeArgs"
-local keys, escape, map, join, shuffle, split, copy = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle, utils.split, utils.copy
+local keys, escape, map, join, shuffle, split = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle, utils.split
 
 local commands = {}
 commands.commands = {desc = "Show a list of available commands",
@@ -21,6 +21,22 @@ commands.when = {desc = "Return stream if stream isn't empty",
   args = {"test", "stream"},
 	exec = function(_, test, stream)
     return #test > 0 and stream or {}
+	end
+}
+commands.count = {desc = "Count the occurence of the values",
+  args = {"count", "values"},
+	exec = function(_, count, values)
+    local o = {}
+    for _, c in ipairs(count) do
+      local n = 0
+      for _, value in ipairs(values) do
+        if value == c then
+          n = n + 1
+        end
+      end
+      table.insert(o, tostring(n))
+    end
+    return o
 	end
 }
 commands.replace = {desc = "Find and replace inside the stream",
@@ -102,6 +118,21 @@ commands.reverse = {desc = "Invert the stream",
     return n
 	end
 }
+commands.indices = {desc = "Collect indices of occurences of values",
+  args = {"stream", "tofind"}, exec = function(_, stream, tofind)
+    local o = {}
+    -- TODO: Use some different return value here. Pretty useless when given
+    -- multiple values to find.
+    for _, f in ipairs(tofind) do
+      for i, v in ipairs(stream) do
+        if v == f then
+          table.insert(o, tostring(i))
+        end
+      end
+    end
+    return o
+  end
+}
 commands.find = {desc = "Find text in a stream",
 	args = {"query", "words"}, exec = function(_, query, stream)
     local n = {}
@@ -155,6 +186,11 @@ commands.read = {desc = "Show the content of the given files",
 	  return map(names, function(n) return ctx:read(n) end)
 	end
 }
+commands.void = {desc = "Void the output",
+	args = {"*files"}, exec = function()
+    return {}
+	end
+}
 commands.split = {desc = "Split the strings",
 	args = {"*strings"}, exec = function(ctx, strings)
     local r = {}
@@ -173,15 +209,17 @@ commands.split = {desc = "Split the strings",
 commands.files = {desc = "Show the available files", exec = function(ctx)
   return ctx:getFiles()
 end}
-commands.new = {desc = "Create the given files", args = {"*file names"}, exec = function(_, names)
-  return map(names, function(n)
-    return "NEW "..n
-  end)
+commands.new = {desc = "Create the given files", args = {"file names"}, exec = function(ctx, names)
+  for _, name in ipairs(names) do
+    ctx:new(name)
+  end
+  return {}
 end}
-commands.delete = {desc = "Delete the given files", args = {"*files"}, exec = function(_, names)
-  return map(names, function(n)
-    return "DEL "..n
-  end)
+commands.delete = {desc = "Delete the given files", args = {"*files"}, exec = function(ctx, names)
+  for _, name in ipairs(names) do
+    ctx:delete(name)
+  end
+  return {}
 end}
 commands.resize = {desc = "Extend the stream", args = {"stream", "length"},
   exec = function(ctx, stream, count)
@@ -190,7 +228,8 @@ commands.resize = {desc = "Extend the stream", args = {"stream", "length"},
     if ctx.cfg.start then
       start = tonumber(ctx.cfg.start[1])
     end
-    for i = start, tonumber(count[1]) do
+    -- TODO: Don't silently fail here.
+    for i = start, tonumber(count[1]) or 0 do
       table.insert(o, stream[i] or stream[#stream])
     end
     return o
@@ -240,16 +279,26 @@ commands.time = {desc = "Show the time", exec = function(ctx)
   return { tostring(os.date()) }
 end}
 commands.give = {desc = "Execute a command for every set of values\nEach output is added to the output stream",
-  args = {"!command", "*values"}, exec = function(_, command, ...)
+  args = {"!command", "*values"}, exec = function(ctx, command, ...)
     local streams = {...}
     local v = 1
     local o = {}
+    local params = 1
+    if ctx.cfg.args then
+      -- TODO: Allow multiple arg counts.
+      params = tonumber(ctx.cfg.args[1])
+    end
     while true do
       local args = {}
+      -- TODO: Variable naming.
       for _, stream in ipairs(streams) do
-        local val = stream[v]
-        if not val then return o end
-        table.insert(args, {val})
+        local sa = {}
+        for i = v * params, v * params + params - 1 do
+          local val = stream[i]
+          if not val then return o end
+          table.insert(sa, val)
+        end
+        table.insert(args, sa)
       end
       local res, err = command(table.unpack(args))
       if not res then return nil, err end
@@ -260,20 +309,53 @@ commands.give = {desc = "Execute a command for every set of values\nEach output 
     end
   end
 }
+commands["repeat"] = {desc = "Execute a command multiple times\nEach output is added to the output stream",
+  args = {"!command", "*values"}, exec = function(_, command, times)
+    local o = {}
+    for _ = 1, tonumber(times[1]) do
+      local res, err = command{}
+      if not res then return nil, err end
+      for _, val in ipairs(res) do
+        table.insert(o, val)
+      end
+    end
+    return o
+  end
+}
+commands.characters = {desc = "Return the characters in a stream",
+  args = {"characters"}, exec = function(_, stream)
+    local o = {}
+    for _, i in ipairs(stream) do
+      for a = 1, #i do
+        table.insert(o, i:sub(a, a))
+      end
+    end
+    return o
+  end
+}
 commands.size = {desc = "Count elements of the stream", args = {"values"}, exec = function(_, values)
   return { tostring(#values) }
 end}
+commands.length = {desc = "Count length of elements of the stream", args = {"values"}, exec = function(_, values)
+  local o = {}
+  for _, v in ipairs(values) do
+    table.insert(o, tostring(#v))
+  end
+  return o
+end}
 commands.list = {desc = "Create a list", args = {"*elements"}, exec = function(_, ...)
   local l = {}
-  for _, arg in ipairs(table.pack(...)) do
+  -- for _, arg in ipairs(table.pack(...)) do
+  for _, arg in ipairs({...}) do
     for _, val in ipairs(arg) do
       table.insert(l, val)
     end
   end
   return l
 end}
-commands.write = {desc = "Write something into a file", args = {"text", "files"}, exec = function(_, text, file)
-  return {"INS "..file[1].." "..table.concat(text, "\n")}
+commands.write = {desc = "Write something into a file", args = {"text", "files"}, exec = function(ctx, text, file)
+  ctx:write(file[1], table.concat(text, "\n"))
+  return text
 end}
 commands.unique = {desc = "Return stream with unique values",
   args = {"values"}, exec = function(ctx, values)
@@ -341,8 +423,21 @@ commands.arguments = {desc = "Show args of a command", args = {"*commands"}, exe
     return describeArgs(commands[c].args).str
   end)
 end}
-commands.join = {desc = "Join a list of words", args = {"words"}, exec = function(ctx, words, sep)
-	return {table.concat(words, (ctx.cfg.with or {" "})[1])}
+commands.join = {desc = "Join a list of words", args = {"words"}, exec = function(ctx, words)
+  local every = 1000
+  local with = " "
+  if ctx.cfg.pack then
+    every = tonumber(ctx.cfg.pack[1])
+  end
+  if ctx.cfg.with then
+    with = ctx.cfg.with[1]
+  end
+  local o = {}
+  for i = 1, #words, every do
+    local con = table.concat(words, with, i, math.min(i + every - 1, #words))
+    table.insert(o, con)
+  end
+	return o
 end}
 commands["or"] = {desc = "Return the first stream with values", args = {"*streams"},
   exec = function(_, ...)
@@ -353,23 +448,22 @@ commands["or"] = {desc = "Return the first stream with values", args = {"*stream
 end}
 commands.remove = {desc = "Remove values from a stream", args = {"remove", "stream"},
   exec = function(_, remove, stream)
-    -- stream = copy(stream)
     local l = #stream
+    local ri = {}
     for _, toRemove in ipairs(remove) do
       for i in ipairs(stream) do
         if stream[i] == toRemove then
-          stream[i] = nil
-          break
+          ri[i] = true
         end
       end
     end
     local n = {}
     for i = 1, l do
-      if stream[i] then
+      if not ri[i] then
         table.insert(n, stream[i])
       end
     end
-    return stream
+    return n
 end}
 
 local function addMath(char, fn)

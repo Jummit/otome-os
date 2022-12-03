@@ -31,10 +31,13 @@ local function parse(line)
       return nil, "Expected key value pairs inside config"
     end
     while key.type ~= "}" do
-      assert(read().type == "=")
+      if read().type ~= "=" then
+        return nil, "Expected equal sign-value pairs inside config"
+      end
       local val, err = readCommand()
       if err then return nil, err end
       vals[key.value] = val
+      key = read()
     end
     return vals
   end

@@ -11,10 +11,8 @@ local read = require("filesystem").read
 local lines = require("utils").lines
 
 local function main()
-  local lastResult = {}
   local function showResult(result, err)
     if result then
-      lastResult = result
       for _, s in ipairs(result) do
         s = s:gsub("\n", "\\n")
         print(s)
@@ -35,10 +33,7 @@ local function main()
         return nil, string.format("Error in script %s line %s: %s", file,
             lineNum, err)
       end
-      if type(res) == "string" then
-        res = {res}
-      end
-      for _, v in ipairs(res) do
+      for _, v in ipairs(res or {}) do
         table.insert(allRes, v)
       end
     end
@@ -51,19 +46,11 @@ local function main()
     if file then
       return executeScript(file)
     elseif funName then
-      return system:execute(("FUN %s %s"):format(funName, funBody))
-    else
-      local res, err = execute(line, system)
+      local res, err = system:registerFunction(funName, funBody)
       if err then return nil, err end
-      for i, s in ipairs(res or {}) do
-        local action, exerr = system:execute(s)
-        if exerr then
-          return nil, exerr
-        elseif action then
-          res[i] = action
-        end
-      end
-      return res
+      return {res}
+    else
+      return execute(line, system)
     end
   end
 
@@ -72,6 +59,7 @@ local function main()
     showResult(executeScript(arg[2]))
     do return end
   end
+  system.disableUndo = true
   while true do
     io.write("> ")
     showResult(executeLine(io.read()))

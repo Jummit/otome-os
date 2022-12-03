@@ -10,7 +10,8 @@ end
 
 function utils.join(...)
   local sum = {}
-  for _, t in ipairs(table.pack(...)) do
+  -- for _, t in ipairs(table.pack(...)) do
+  for _, t in ipairs({...}) do
     for _, v in ipairs(t) do table.insert(sum, v) end
   end
   return sum

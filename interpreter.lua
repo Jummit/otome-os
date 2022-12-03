@@ -42,8 +42,10 @@ function execute(command, system, functionArgs, directArgs)
 		return functionArgs[command.arg]
 	elseif command.callable then
 		return function(...)
-			return execute(setmetatable({callable = false}, {__index = command}),
-					system, functionArgs, {...})
+			local cmd = setmetatable({callable = false, args = {...}}, {__index = command})
+			local err = check(cmd, system)
+			if err then return nil, "Error in 'give' command: "..err end
+			return execute(cmd, system, functionArgs, {...})
 		end
 	elseif command.number then
 		return {command.number}
@@ -62,14 +64,14 @@ end
 
 return function(line, system)
 	assert(type(line) == "string")
-	local err = check(line, system)
-	if err then return nil, err end
 	local res, parseErr = parse(line)
 	if parseErr then
 		return nil, parseErr
 	elseif not res then
 		return {}
 	end
+	err = check(res, system)
+	if err then return nil, err end
 	res, err = execute(res, system)
 	if err then
 		return nil, err

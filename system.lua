@@ -21,6 +21,8 @@ local system = {
 	history = require("history")(),
   commands = require "commands",
   functions = {},
+  files = {},
+  disableUndo = false,
 }
 
 function system:getFiles()
@@ -28,58 +30,77 @@ function system:getFiles()
 end
 
 function system:read(file)
+  if self.files[file] then
+    return self.files[file]
+  end
 	return read(self.dir..file) or ""
 end
 
-function system:execute(line)
-  local cmd, param, data = line:match("(%S+) (.-) (.+)")
-  if not param then return end
-  local tmpName = self.old..tostring(math.random())
-  local file = self.dir..param
-  if cmd == "NEW" then
-    return self.history:addAction("Created "..param,
-      function()
-        os.rename(file, tmpName)
-        write(file, "")
-      end,
-      function()
-        os.remove(file)
-        os.rename(tmpName, file)
-      end
-    )
-  elseif cmd == "DEL" then
-    return self.history:addAction("Deleted "..param,
-      function() os.rename(file, tmpName) end,
-      function() os.rename(tmpName, file) end
-    )
-  elseif cmd == "MOV" then
-    -- TODO: Implement move
-  elseif cmd == "INS" then
-    return self.history:addAction("Inserted into "..file,
-      function()
-        os.rename(file, tmpName)
-        write(file, data)
-      end,
-      function()
-        os.remove(file)
-        os.rename(tmpName, file)
-      end
-    )
-  elseif cmd == "FUN" then
-    local err = check(data, self)
-  	if err then return nil, err end
-    local parsedCmd, parseErr = parse(data)
-    if not parsedCmd then return nil, parseErr end
-    parsedCmd.definition = data
-    local before = self.functions[param]
-    return self.history:addAction("Registered function "..param,
-      function()
-        self.functions[param] = parsedCmd
-      end,
-      function()
-        self.functions[param] = before
-      end)
+function system:write(file, content)
+  local path = self.dir..file
+  if self:read(file) == content then
+    return
   end
+  local tmpName = self.old..tostring(math.random())
+  if self.disableUndo then
+    self.files[file] = content
+    return
+  end
+  return self.history:addAction(
+    ("Inserted %s into %s"):format(content, content),
+    function()
+      os.rename(path, tmpName)
+      write(path, content)
+    end,
+    function()
+      os.remove(path)
+      os.rename(tmpName, path)
+    end
+  )
+end
+
+function system:new(file)
+  local path = self.dir..file
+  local tmpName = self.old..tostring(math.random())
+  return self.history:addAction("Created "..file,
+    function()
+      os.rename(path, tmpName)
+      write(path, "")
+    end,
+    function()
+      os.remove(path)
+      os.rename(tmpName, path)
+    end
+  )
+end
+
+function system:delete(file)
+  local path = self.dir..file
+  local tmpName = self.old..tostring(math.random())
+  return self.history:addAction("Deleted "..file,
+    function()
+      os.rename(path, tmpName)
+    end,
+    function()
+      os.rename(tmpName, path)
+    end
+  )
+end
+
+function system:registerFunction(name, body)
+  local parsedCmd, parseErr = parse(body)
+  if not parsedCmd then return nil, parseErr end
+  local err = check(parsedCmd, self)
+	if err then return nil, err end
+  parsedCmd.definition = body
+  local before = self.functions[name]
+  return self.history:addAction("Registered function "..name,
+    function()
+      self.functions[name] = parsedCmd
+    end,
+    function()
+      self.functions[name] = before
+    end)
 end
 
 return system

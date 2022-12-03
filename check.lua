@@ -5,9 +5,6 @@
 -- Checks for things like argument counts and type checking.
 
 local describeArgs = require "describeArgs"
-local parse = require "parser"
-
-local cachedOk = {}
 
 local function collectArguments(command, args)
   args = args or {}
@@ -93,14 +90,4 @@ function check(command, system)
   end
 end
 
-return function(line, system)
-  assert(type(line) == "string")
-  if cachedOk[line] then
-    return
-  end
-  local command, err = parse(line)
-  if not command then return err end
-  err = check(command, system)
-  cachedOk[command] = not err
-  return err
-end
+return check
