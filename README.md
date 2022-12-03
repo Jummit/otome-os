@@ -25,8 +25,6 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [ ] add config to commands where it makes sense
 - [ ] type check config
 - [ ] parameter expansion
-- [ ] virtual execution of scripts (remove confirm)
-- [ ] rework tests
 - [ ] configuration for functions
 - [ ] rework file system operations
 - [ ] allow documentation of user functions
@@ -35,7 +33,6 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [ ] multiline (wait until everything is closed)
 - [ ] define functions with config and parameters
 - [ ] save history to disk
-- [ ] pass functions to functions
 - [ ] LSP
 - [ ] tree sitter grammar
 - [ ] categories for commands
@@ -52,23 +49,18 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 
 - [x] Tests
 - [x] Strings
-- [x] List sugar
-- [x] Aliases (removed in favor of functions)
+- [x] List syntactic sugar
 - [x] Error handling
 - [x] stream manipulation commands
 - [x] execute a file or string
 - [x] Parameters (config options for commands)
 - [x] define functions
 - [x] define functions with parameters
-- [x] remove aliases in favor of functions
 - [x] callables (commands as parameters)
-- [x] confirm in scripts (replaced by immediate execution)
 - [x] math operators
 - [x] comparison operators
 - [x] Flow control: loops (with 'give'), conditions (with 'when')
-- [x] commands have no side effects
 - [x] Wrote something useful with this: [AOC D1](https://www.reddit.com/r/adventofcode/comments/z9ezjb/comment/iyha7bf/?context=3)
-- [x] refactored the language and added some comments
 - [x] escaping in strings
 - [x] closures
 
