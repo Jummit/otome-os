@@ -21,7 +21,7 @@ function execute(command, system, functionArgs, directArgs)
 			call = function(...)
 				local cmd = setmetatable({callable = false}, {__index = command})
 				local err = check(cmd, system)
-				if err then return nil, "Error in 'give' command: "..err end
+				if err then return nil, "Error in callable execution: "..err end
 				return execute(cmd, system, {...})
 			end,
 			command = command,
@@ -56,7 +56,7 @@ function execute(command, system, functionArgs, directArgs)
 			call = function(...)
 				local cmd = setmetatable({callable = false, args = {...}}, {__index = command})
 				local err = check(cmd, system)
-				if err then return nil, "Error in 'give' command: "..err end
+				if err then return nil, "Error in callable execution: "..err end
 				return execute(cmd, system, functionArgs, {...})
 			end,
 			command = command,

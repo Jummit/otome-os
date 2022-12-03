@@ -2,6 +2,8 @@
 local system = require("system")
 local inspect = require("inspect")
 
+i = function(a) print(inspect(a)) end
+
 local ERR = {}
 
 local function e(command, result)
@@ -30,7 +32,7 @@ local function e(command, result)
 		os.exit(1)
 	end
 
-	if type(result) == "string" then
+	if type(result) ~= "table" then
 		result = { result }
 	end
 
@@ -83,6 +85,16 @@ e("> [-5 7.5]", {})
 e("> ['a 7]", {})
 e("> void", {})
 
+e("equal [5 7 6]", {})
+e("equal [6 6]", {6, 6})
+e("equal [-5 7.5]", {})
+e("equal ['a 7]", {})
+e("equal void", {})
+
+e("or [1 2]", {1, 2})
+e("or void [1 2] void", {1, 2})
+e("or void void", {})
+
 -- Help --
 e("commands")
 e("functions", "fun")
@@ -106,10 +118,82 @@ e("at [1 2 3] [1 2 3 4 5]", {1, 2, 3})
 e("at [-1 -2 1] [1 2 3 4 5]", {5, 4, 1})
 e("at ['a] [1 2 3 4 5]", ERR)
 
+e("size [1 2 3]", 3)
+e("size void", 0)
+
+e("every 3 [1 2 3 1 2 5 1 3]", {1, 1, 1})
+e("every -2 [1 2 3 1 2 5 1 3]", {3, 5, 1, 2})
+e("every 'a [1 2 3 1 2 5 1 3]", ERR)
+e("every 0 [1 2 3 1 2 5 1 3]", ERR)
+e("every void [1 2 3 1 2 5 1 3]", ERR)
+
+-- Generation --
+e("range void void", ERR)
+e("range -1 3", {-1, 0, 1, 2, 3})
+e("range 3 -1", {3, 2, 1, 0, -1})
+e("range 0 0", {0})
+e("range 'a 3", ERR)
+e("range 3 void", ERR)
+
+e("repeat !fun 3", {"a", "a", "a"})
+e("repeat !fun -1", ERR)
+e("repeat !fun 'a", ERR)
+e("repeat !fun void", ERR)
+
+e("void")
+
 -- Manipulation --
 e("change [1 1 2 3] [1 2] [2 1]", {2, 2, 1, 3})
 e("change [1 1 2 3] [1 2] [1]", ERR)
 e("change void [1 2] [1]", {})
 e("change [!a 1 2 3] [1 2] [2 1]", ERR)
 
+e("delete")
+
+e("remove")
+e("unique")
+e("sort")
+e("trim")
+
+e("removeat")
+e("shuffle")
+
+-- Strings --
+e("characters 'abc1", {"a", "b", "c", 1})
+e("characters !fun", ERR)
+
+e("find")
+
+e("split")
+e("replace")
+
+e("length")
+
+-- Lists --
+e("columns [1 122] [2 3 3] [3 2 1]", {"1   2 3", "122 3 2"})
+e("columns void", {})
+
+e("count")
+e("combine")
+e("splice")
+e("join")
+e("list")
+
+-- Flow Control --
+e("give")
+e("when")
+
+-- History --
+e("history")
+e("undo", {})
+e("redo", {})
+
+-- File System --
+e("files", {})
+
+e("new")
+e("read")
+
+-- System --
+e("time")
 e("write 'water 'lake", "water")

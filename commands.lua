@@ -71,7 +71,22 @@ commands.every = {desc = "Get every nth value from a stream",
 	args = {"nth", "stream"},
 	exec = function(_, nth, inp)
     local o = {}
-    for i = 1, #inp, tonumber(nth[1]) do
+    local s = 1
+    local by = tonumber(nth[1])
+    local to = #inp
+    if not nth[1] then
+      return nil, 'Expected value for "every"'
+    elseif by == 0 then
+      return nil, 'Can\'t get every zero\'th element in command "every"'
+    elseif not by then
+      return nil, ('Expected number, got "%s" for "every"'):format(nth[1])
+    end
+    if by < 0 then
+      s = #inp
+      to = 1
+    end
+    -- TODO: Allow variable distances.
+    for i = s, to, by do
       table.insert(o, inp[i])
     end
     return o
@@ -319,7 +334,7 @@ commands.give = {desc = "Execute a command for every set of values\nEach output 
     end
     while true do
       local args = {}
-      -- TODO: Variable naming.
+      -- TODO: Improve variable naming.
       for _, stream in ipairs(streams) do
         local sa = {}
         for i = v * params, v * params + params - 1 do
@@ -338,11 +353,23 @@ commands.give = {desc = "Execute a command for every set of values\nEach output 
     end
   end
 }
-commands["repeat"] = {desc = "Execute a command multiple times\nEach output is added to the output stream",
-  args = {"!command", "*values"}, exec = function(_, command, times)
+commands["repeat"] = {
+  desc = "Execute a command multiple times\nEach output is added to the output stream",
+  args = {"!command", "values"}, exec = function(_, command, times)
     local o = {}
-    for _ = 1, tonumber(times[1]) do
-      local res, err = command{}
+    -- TODO: Use all values from 'times'.
+    if not times[1] then
+      return nil, "Got no value for repeat times"
+    end
+    local num = tonumber(times[1])
+    if not num then
+      return nil, ('Expected number, got "%s" for times of "repeat"'):format(times[1])
+    end
+    if num < 1 then
+      return nil, ('Can\'t repeat call %s times'):format(num)
+    end
+    for _ = 1, num do
+      local res, err = command.call()
       if not res then return nil, err end
       for _, val in ipairs(res) do
         table.insert(o, val)
@@ -405,11 +432,21 @@ commands.unique = {desc = "Return stream with unique values",
 }
 commands.range = {desc = "Generate a sequence of numbers", args = {"from", "to"}, exec = function(_, from, to)
   local t = {}
-  from = tonumber(from[1])
-  to = tonumber(to[1])
-  if not from or not to then return {} end
+  if not from[1] then
+    return nil, 'Got no "from" parameter for range'
+  elseif not to[1] then
+    return nil, 'Got no "to" parameter for range'
+  end
+  local fromi = tonumber(from[1])
+  local toi = tonumber(to[1])
+  if not fromi then
+    return nil, ('Parameter "from" for range is no number: %s'):format(from[1])
+  elseif not toi then
+    return nil, ('Parameter "to" for range is no number: %s'):format(to[1])
+  end
+  -- TODO: Use all numbers from from and to.
   -- TODO: Add step parameter
-  for i = from, to, to > from and 1 or -1 do
+  for i = fromi, toi, toi > fromi and 1 or -1 do
     table.insert(t, tostring(i))
   end
   return t
