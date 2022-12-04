@@ -7,45 +7,45 @@ i = function(a) print(inspect(a)) end
 local ERR = {}
 
 local function e(command, result)
-	local res, err = system:executeLine(command)
-	if not result then
-		if err then
-			print(('Expected command "%s" to succeed, got error:\n%s'):format(
-					command, err))
-			os.exit(1)
-		end
-		return
-	end
+  local res, err = system:executeLine(command)
+  if not result then
+    if err then
+      print(('Expected command "%s" to succeed, got error:\n%s'):format(
+          command, err))
+      os.exit(1)
+    end
+    return
+  end
 
-	if err then
-		if result == ERR then
-			return
-		else
-			print(('Unexpected error in command "%s":\n%s'):format(command, err))
-			os.exit(1)
-		end
-	end
+  if err then
+    if result == ERR then
+      return
+    else
+      print(('Unexpected error in command "%s":\n%s'):format(command, err))
+      os.exit(1)
+    end
+  end
 
-	if result == ERR then
-		print(('Expected command "%s" to fail, but it returned\n%s.'):format(
-				command, inspect(res)))
-		os.exit(1)
-	end
+  if result == ERR then
+    print(('Expected command "%s" to fail, but it returned\n%s.'):format(
+        command, inspect(res)))
+    os.exit(1)
+  end
 
-	if type(result) ~= "table" then
-		result = { result }
-	end
+  if type(result) ~= "table" then
+    result = { result }
+  end
 
-	for i, v in ipairs(result) do
-		result[i] = tostring(v)
-	end
+  for i, v in ipairs(result) do
+    result[i] = tostring(v)
+  end
 
-	local a, b = inspect(result), inspect(res)
-	if a ~= b then
-		print(('Command "%s" has wrong result:\nExpected %s,\ngot %s'):format(
-				command, a, b))
-		os.exit(1)
-	end
+  local a, b = inspect(result), inspect(res)
+  if a ~= b then
+    print(('Command "%s" has wrong result:\nExpected %s,\ngot %s'):format(
+        command, a, b))
+    os.exit(1)
+  end
 end
 
 -- System Setup --

@@ -159,3 +159,10 @@ give [5 2 3] !($1 give $2 !(join [$1 $1]))
 
 Otome because I like the Otometsubaki flower. Any other meanings are accidental, but welcome.
 
+## Development
+
+Check the source code:
+
+```bash
+luacheck *.lua --exclude-files inspect.lua``
+```

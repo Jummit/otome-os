@@ -28,6 +28,7 @@ function system:getFiles()
 	return getFiles(self.dir)
 end
 
+--- @param file string
 function system:read(file)
   if self.files[file] then
     return self.files[file]
