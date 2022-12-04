@@ -216,7 +216,14 @@ commands.splice = {desc = "",
 }
 commands.read = {desc = "Show the content of the given files",
   args = {"*files"}, exec = function(ctx, names)
-    return map(names, function(n) return ctx:read(n) end)
+    local o = {}
+    for _, name in ipairs(names) do
+      local content = ctx:read(name)
+      if content then
+        table.insert(o, content)
+      end
+    end
+    return o
   end
 }
 commands.void = {desc = "Void the output",

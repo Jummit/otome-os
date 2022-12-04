@@ -12,7 +12,7 @@ end
 function filesystem.read(file)
   -- local f <close> = io.open(file)
   local f = io.open(file)
-  if not f then return "" end
+  if not f then return end
   return f:read("a")
 end
 

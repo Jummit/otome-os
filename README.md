@@ -20,7 +20,6 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 
 ## TODO
 
-- [ ] test every command
 - [ ] example command to show usage of commands
 - [ ] add a documentation folder with some tutorials / explainations
 - [ ] add config to commands where it makes sense
@@ -65,6 +64,7 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [x] Wrote something useful with this: [AOC D1](https://www.reddit.com/r/adventofcode/comments/z9ezjb/comment/iyha7bf/?context=3)
 - [x] escaping in strings
 - [x] closures
+- [x] test every command
 
 ## Timed Commands
 

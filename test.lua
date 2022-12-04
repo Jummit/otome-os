@@ -213,19 +213,21 @@ e("give{args=2} !fun [1 2] [1 4]", ERR)
 e("give{args=2} !fun void", {})
 e("give{args=2} !join [1 2 3 6 7]", {"1 2", "3 6"})
 
-e("when")
+e("when void 1", {})
+e("when 1 [1 2]", {1, 2})
 
 -- History --
 e("history")
-e("undo", {})
-e("redo", {})
+e("undo", {"Undid Registered function fun"})
+e("redo", {"Registered function fun again"})
 
 -- File System --
-e("files", {})
+e("files")
 
-e("delete")
-e("new")
-e("read")
+-- e("delete")
+e("new 'a")
+e("read 'a", {""})
+e("read 'aa", {})
 
 -- System --
 e("time")

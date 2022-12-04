@@ -28,12 +28,11 @@ function system:getFiles()
 	return getFiles(self.dir)
 end
 
---- @param file string
 function system:read(file)
   if self.files[file] then
     return self.files[file]
   end
-	return read(self.dir..file) or ""
+	return read(self.dir..file)
 end
 
 function system:write(file, content)
