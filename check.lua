@@ -42,21 +42,21 @@ local function checkParameters(command, expected)
 end
 
 local function checkCommand(command, about)
-	local args = describeArgs(about.args)
-	local argCount = #(command.args or {})
+  local args = describeArgs(about.args)
+  local argCount = #(command.args or {})
   -- TODO: There needs to be better checking of parameters given to
   -- callables.
   if not command.callable and argCount < args.needed then
     return string.format("%s requires %s parameters (%s), got %s",
         command.command, args.needed, args.str, argCount)
-	elseif args.limit and argCount > args.limit then
+  elseif args.limit and argCount > args.limit then
     if args.limit == 0 then
       return ("%s doesn't take any parameters, but got %s"):format(
           command.command, #command.args)
     else
       return string.format(
           "%s only takes %s parameters (%s), got %s\ntry passing multiple parameters as a [list]",
-  				command.command, args.limit or args.needed, args.str, argCount)
+    command.command, args.limit or args.needed, args.str, argCount)
     end
   end
   local expected = {}

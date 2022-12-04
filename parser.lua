@@ -60,9 +60,6 @@ local function parse(line)
     return list
   end
 
-  function readClosure()
-  end
-
   function readCommand()
     local start = read()
     if not start then

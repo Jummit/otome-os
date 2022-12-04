@@ -5,15 +5,12 @@
 -- The system object stores the state of the computer.
 -- It can execute system commands.
 
-local strip = require("utils").strip
-local join = require("utils").join
 local parse = require "parser"
 local check = require "check"
 local execute = require "interpreter"
 local filesystem = require "filesystem"
 local getFiles = filesystem.getFiles
 local read = filesystem.read
-local copy = filesystem.copy
 local write = filesystem.write
 local lines = require("utils").lines
 

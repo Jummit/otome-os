@@ -3,8 +3,8 @@
 --------------------
 
 local utils = require("utils")
-local describeArgs = require "describeArgs"
-local keys, escape, map, join, shuffle, split = utils.keys, utils.escape, utils.map, utils.join, utils.shuffle, utils.split
+local keys, escape, map, join, shuffle, split =
+    utils.keys, utils.escape, utils.map, utils.join, utils.shuffle, utils.split
 
 local function intArg(command, param, val)
   if not val[1] then
@@ -17,24 +17,24 @@ end
 
 local commands = {}
 commands.commands = {desc = "Show a list of available commands",
-	exec = function(_)
-	  return keys(commands)
-	end
+  exec = function(_)
+    return keys(commands)
+  end
 }
 commands.functions = {desc = "Show a list of defined functions",
-	exec = function(ctx)
-	  return keys(ctx.functions)
-	end
+  exec = function(ctx)
+    return keys(ctx.functions)
+  end
 }
 commands.when = {desc = "Return stream if stream isn't empty",
   args = {"test", "stream"},
-	exec = function(_, test, stream)
+  exec = function(_, test, stream)
     return #test > 0 and stream or {}
-	end
+  end
 }
 commands.count = {desc = "Count the occurence of the values",
   args = {"count", "values"},
-	exec = function(_, count, values)
+  exec = function(_, count, values)
     local o = {}
     for _, c in ipairs(count) do
       local n = 0
@@ -46,18 +46,18 @@ commands.count = {desc = "Count the occurence of the values",
       table.insert(o, tostring(n))
     end
     return o
-	end
+  end
 }
 commands.replace = {desc = "Find and replace inside the stream",
-	args = {"text", "old", "new"},
-	exec = function(_, inp, from, to)
-	  return map(inp, function(v)
+  args = {"text", "old", "new"},
+  exec = function(_, inp, from, to)
+    return map(inp, function(v)
       for i, fr in ipairs(from) do
-  	    v = v:gsub(escape(fr), to[i])
+        v = v:gsub(escape(fr), to[i])
       end
       return v
-	  end)
-	end
+    end)
+  end
 }
 commands.change = {desc = "Replace values", args = {"values", "old", "new"},
   exec = function(_, values, old, new)
@@ -67,7 +67,9 @@ commands.change = {desc = "Replace values", args = {"values", "old", "new"},
       for j, oldval in ipairs(old) do
         if value == oldval then
           if not new[j] then
-            return nil, ('No new value to replace index %s in command "change": expected %s new values, got %s'):format(i, #old, #new)
+            return nil, 'No new value to replace index'..
+              ('%s in command "change": expected %s new values, got %s'):format(
+              i, #old, #new)
           end
           o[i] = new[j] or ""
         end
@@ -77,8 +79,8 @@ commands.change = {desc = "Replace values", args = {"values", "old", "new"},
   end,
 }
 commands.every = {desc = "Get every nth value from a stream",
-	args = {"nth", "stream"},
-	exec = function(_, nth, inp)
+  args = {"nth", "stream"},
+  exec = function(_, nth, inp)
     local o = {}
     local s = 1
     local by, err = intArg("every", "nth", nth)
@@ -95,24 +97,24 @@ commands.every = {desc = "Get every nth value from a stream",
       table.insert(o, inp[i])
     end
     return o
-	end
+  end
 }
 commands.combine = {desc = "Combine multiple streams",
-	args = {"*streams to combine"}, exec = function(_, ...)
-	  local r = {}
-	  local streams = {...}
-	  for i = 1, math.min(table.unpack(map(streams, function(e) return #e end))) do
+  args = {"*streams to combine"}, exec = function(_, ...)
+    local r = {}
+    local streams = {...}
+    for i = 1, math.min(table.unpack(map(streams, function(e) return #e end))) do
       local vals = {}
       for _, stream in ipairs(streams) do
         table.insert(vals, stream[i])
       end
-	    table.insert(r, table.concat(vals, " "))
-	  end
-	  return r
-	end
+      table.insert(r, table.concat(vals, " "))
+    end
+    return r
+  end
 }
 commands.sort = {desc = "Sort the stream",
-	args = {"words"}, exec = function(_, stream)
+  args = {"words"}, exec = function(_, stream)
     local nums = {}
     for _, v in ipairs(stream) do
       local n = tonumber(v)
@@ -129,31 +131,31 @@ commands.sort = {desc = "Sort the stream",
       stream[i] = tostring(v)
     end
     return stream
-	end
+  end
 }
 commands.shuffle = {desc = "Randomize the stream",
-	args = {"stream"}, exec = function(_, stream)
+  args = {"stream"}, exec = function(_, stream)
     -- stream = copy(stream)
     shuffle(stream)
     return stream
-	end
+  end
 }
 commands.when = {desc = "Output if stream has values",
-	args = {"bool", "stream"}, exec = function(_, bool, stream)
+  args = {"bool", "stream"}, exec = function(_, bool, stream)
     if bool[1] and #bool[1] > 0 then
       return stream
     end
     return {}
-	end
+  end
 }
 commands.reverse = {desc = "Invert the stream",
-	args = {"stream"}, exec = function(_, stream)
+  args = {"stream"}, exec = function(_, stream)
     local n = {}
     for _ = 1, #stream do
       table.insert(n, table.remove(stream, #stream))
     end
     return n
-	end
+  end
 }
 commands.indices = {desc = "Collect indices of occurences of values",
   args = {"stream", "tofind"}, exec = function(_, stream, tofind)
@@ -171,7 +173,7 @@ commands.indices = {desc = "Collect indices of occurences of values",
   end
 }
 commands.find = {desc = "Find text in a stream",
-	args = {"query", "words"}, exec = function(_, query, stream)
+  args = {"query", "words"}, exec = function(_, query, stream)
     local n = {}
     for _, w in ipairs(stream) do
       for _, q in ipairs(query) do
@@ -182,10 +184,10 @@ commands.find = {desc = "Find text in a stream",
       end
     end
     return n
-	end
+  end
 }
 commands.columns = {desc = "Combine multiple streams as columns",
-	args = {"*streams"}, exec = function(_, ...)
+  args = {"*streams"}, exec = function(_, ...)
     local streams = map({...}, function(s)
       local max = 0
       for _, e in ipairs(s) do
@@ -204,35 +206,35 @@ commands.columns = {desc = "Combine multiple streams as columns",
       end
       table.insert(r, table.concat(sub, " "))
     end
-	end
+  end
 }
 commands.splice = {desc = "",
-	args = {"*streams"}, exec = function(_, ...)
-	  local r = {}
-	  local streams = {...}
-	  for i = 1, math.max(table.unpack(map(streams, function(e) return #e end))) do
-	    for _, stream in ipairs(streams) do
-	      table.insert(r, stream[i])
-	    end
-	  end
-	  return r
-	end
+  args = {"*streams"}, exec = function(_, ...)
+    local r = {}
+    local streams = {...}
+    for i = 1, math.max(table.unpack(map(streams, function(e) return #e end))) do
+      for _, stream in ipairs(streams) do
+        table.insert(r, stream[i])
+      end
+    end
+    return r
+  end
 }
 commands.read = {desc = "Show the content of the given files",
-	args = {"*files"}, exec = function(ctx, names)
-	  return map(names, function(n) return ctx:read(n) end)
-	end
+  args = {"*files"}, exec = function(ctx, names)
+    return map(names, function(n) return ctx:read(n) end)
+  end
 }
 commands.void = {desc = "Void the output",
-	args = {"*files"}, exec = function()
+  args = {"*files"}, exec = function()
     return {}
-	end
+  end
 }
 commands.void = {desc = "Return nothing",
-	exec = function() return {} end
+  exec = function() return {} end
 }
 commands.split = {desc = "Split the strings",
-	args = {"*strings"}, exec = function(ctx, strings)
+  args = {"*strings"}, exec = function(ctx, strings)
     local r = {}
     local sep = "\n"
     if ctx.cfg.at then
@@ -244,7 +246,7 @@ commands.split = {desc = "Split the strings",
       end
     end
     return r
-	end
+  end
 }
 commands.files = {desc = "Show the available files", exec = function(ctx)
   return ctx:getFiles()
@@ -385,8 +387,8 @@ commands["repeat"] = {
       return nil, ('Can\'t repeat call %s times'):format(num)
     end
     for _ = 1, num do
-      local res, err = command.call()
-      if not res then return nil, err end
+      local res, callErr = command.call()
+      if not res then return nil, callErr end
       for _, val in ipairs(res) do
         table.insert(o, val)
       end
@@ -448,12 +450,12 @@ commands.unique = {desc = "Return stream with unique values",
 }
 commands.range = {desc = "Generate a sequence of numbers", args = {"from", "to"}, exec = function(_, from, to)
   local t = {}
-  local from, fromErr = intArg("range", "from", from)
-  local to, toErr = intArg("range", "to", to)
+  local fromNum, fromErr = intArg("range", "from", from)
+  local toNum, toErr = intArg("range", "to", to)
   if fromErr or toErr then return nil, fromErr or toErr end
   -- TODO: Use all numbers from from and to.
   -- TODO: Add step parameter
-  for i = from, to, to > from and 1 or -1 do
+  for i = fromNum, toNum, toNum > fromNum and 1 or -1 do
     table.insert(t, tostring(i))
   end
   return t
@@ -512,7 +514,7 @@ commands.join = {desc = "Join a list of words", args = {"words"}, exec = functio
     local con = table.concat(words, with, i, math.min(i + every - 1, #words))
     table.insert(o, con)
   end
-	return o
+  return o
 end}
 commands["or"] = {desc = "Return the first stream with values", args = {"*streams"},
   exec = function(_, ...)
@@ -542,38 +544,38 @@ commands.remove = {desc = "Remove values from a stream", args = {"remove", "stre
 end}
 
 local function addMath(char, fn)
-	commands[char] = {desc = string.format("Calculate %s with input", char),
+  commands[char] = {desc = string.format("Calculate %s with input", char),
     args = {"numbers"}, exec = function(_, nums)
-		local o
-		for _, n in ipairs(nums) do
-			if not o then
-				o = tonumber(n)
+  local o
+  for _, n in ipairs(nums) do
+  if not o then
+  o = tonumber(n)
         if not o then return {} end
-			else
+  else
         local num = tonumber(n)
         if not num then
           return nil, ('Can\'t do math operation %s with word "%s"'):format(char, n)
         end
         if num then
-  				o = fn(o, num)
+    o = fn(o, num)
         end
-			end
-		end
+  end
+  end
     if not o then
       return {}
     end
-		return {tostring(o)}
-	end}
+  return {tostring(o)}
+  end}
 end
 
 local function addCmp(char, fn)
-	commands[char] = {desc = string.format("Compare input with %s", char), args = {"numbers"}, exec = function(_, nums)
-		local o
-		for _, n in ipairs(nums) do
-			if not o then
-				o = tonumber(n)
+  commands[char] = {desc = string.format("Compare input with %s", char), args = {"numbers"}, exec = function(_, nums)
+  local o
+  for _, n in ipairs(nums) do
+  if not o then
+  o = tonumber(n)
         if not o then return {} end
-			else
+  else
         local num = tonumber(n)
         if not num then
           return nil, ("Can't compare %s with numbers. Use 'sort' if you want to sort words instead."):format(n)
@@ -581,10 +583,10 @@ local function addCmp(char, fn)
         if not fn(o, num) then
           return {}
         end
-			end
-		end
-		return nums
-	end}
+  end
+  end
+  return nums
+  end}
 end
 
 addMath("+", function(a, b) return a + b end)
