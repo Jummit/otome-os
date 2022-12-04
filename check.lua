@@ -44,9 +44,12 @@ end
 local function checkCommand(command, about)
   local args = describeArgs(about.args)
   local argCount = #(command.args or {})
+  if command.callable and not command.args then
+    return
+  end
   -- TODO: There needs to be better checking of parameters given to
   -- callables.
-  if not command.callable and argCount < args.needed then
+  if argCount < args.needed then
     return string.format("%s requires %s parameters (%s), got %s",
         command.command, args.needed, args.str, argCount)
   elseif args.limit and argCount > args.limit then
@@ -56,7 +59,7 @@ local function checkCommand(command, about)
     else
       return string.format(
           "%s only takes %s parameters (%s), got %s\ntry passing multiple parameters as a [list]",
-    command.command, args.limit or args.needed, args.str, argCount)
+          command.command, args.limit or args.needed, args.str, argCount)
     end
   end
   local expected = {}
@@ -68,7 +71,7 @@ end
 
 local function checkFunction(func, content)
   local args = collectArguments(content)
-  if not func.callable and #(func.args or {}) ~= #args then
+  if #(func.args or {}) ~= #args then
     return ("Expected %s parameters for function %s, got %s"):format(
         #(args or {}), func.command, #(func.args or {}))
   end
@@ -79,9 +82,7 @@ local check
 function check(command, system)
   for _, arg in ipairs(command.args or {}) do
     local err = check(arg, system)
-    if err then
-      return err
-    end
+    if err then return err end
   end
   if system.functions[command.command] then
     return checkFunction(command, system.functions[command.command])

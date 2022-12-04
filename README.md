@@ -20,6 +20,7 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 
 ## TODO
 
+- [ ] test every command
 - [ ] example command to show usage of commands
 - [ ] add a documentation folder with some tutorials / explainations
 - [ ] add config to commands where it makes sense
@@ -29,6 +30,7 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 - [ ] rework file system operations
 - [ ] allow documentation of user functions
 - [ ] multiple return values / vararg
+- [ ] example in readme
 - [ ] folders and then also paths sigh.
 - [ ] multiline (wait until everything is closed)
 - [ ] define functions with config and parameters

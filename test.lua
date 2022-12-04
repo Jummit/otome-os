@@ -175,25 +175,44 @@ e("shuffle [1 2 3]")
 e("characters 'abc1", {"a", "b", "c", 1})
 e("characters !fun", ERR)
 
-e("find")
+e("find ['a 1] [1 2 3 'abc']", {1, "abc"})
+e("find ['a 1] void", {})
+e("find void [1 2 3 'abc']", {})
 
-e("split")
-e("replace")
+e("split ['abc 'e\na '\n]", {"abc", "e", "a", "", ""})
+e("split void", {})
 
-e("length")
+e("replace ['abc 'def] ['a 'd] ['d 'a]", {"abc", "aef"})
+e("replace ['abc 'def] ['a 'd] ['d]", ERR)
+e("replace void ['a 'd] ['d 'a]", {})
+
+e("length [1 2 33]", {1, 1, 2})
+e("length void", {})
+
+e("join [1 2 void 4]", "1 2 4")
 
 -- Lists --
 e("columns [1 122] [2 3 3] [3 2 1]", {"1   2 3", "122 3 2"})
 e("columns void", {})
 
-e("count")
-e("combine")
-e("splice")
-e("join")
-e("list")
+e("count [3 6] [3 3 8 5 6 -6]", {2, 1})
+e("count [3 6] void", {0, 0})
+e("count void [3 3 8 5 6 -6]", {})
+
+e("splice [1 2 3] [4 5 6] [7] void", {1, 4, 7, 2, 5, 3, 6})
+e("splice void", {})
+
+e("list 1 2 void 5 'abc", {1, 2, 5, "abc"})
+e("list", ERR)
 
 -- Flow Control --
-e("give")
+e("give !join void", {})
+e("give !join 1 2 3", ERR)
+e("give{args=2} !fun [1 2] [1]", {})
+e("give{args=2} !fun [1 2] [1 4]", ERR)
+e("give{args=2} !fun void", {})
+e("give{args=2} !join [1 2 3 6 7]", {"1 2", "3 6"})
+
 e("when")
 
 -- History --

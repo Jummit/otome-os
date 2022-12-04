@@ -51,12 +51,20 @@ commands.count = {desc = "Count the occurence of the values",
 commands.replace = {desc = "Find and replace inside the stream",
   args = {"text", "old", "new"},
   exec = function(_, inp, from, to)
-    return map(inp, function(v)
+    -- FIXME: Handle simultaneus replaces like a->b and b->a.
+    local o = {}
+    for _, v in ipairs(inp) do
       for i, fr in ipairs(from) do
+        if not to[i] then
+          return nil,
+              ("Not enough values to replace, expected %s, got %s"):format(
+              #from, #to)
+        end
         v = v:gsub(escape(fr), to[i])
       end
-      return v
-    end)
+      table.insert(o, v)
+    end
+    return o
   end
 }
 commands.change = {desc = "Replace values", args = {"values", "old", "new"},
@@ -97,20 +105,6 @@ commands.every = {desc = "Get every nth value from a stream",
       table.insert(o, inp[i])
     end
     return o
-  end
-}
-commands.combine = {desc = "Combine multiple streams",
-  args = {"*streams to combine"}, exec = function(_, ...)
-    local r = {}
-    local streams = {...}
-    for i = 1, math.min(table.unpack(map(streams, function(e) return #e end))) do
-      local vals = {}
-      for _, stream in ipairs(streams) do
-        table.insert(vals, stream[i])
-      end
-      table.insert(r, table.concat(vals, " "))
-    end
-    return r
   end
 }
 commands.sort = {desc = "Sort the stream",
@@ -344,6 +338,8 @@ commands.time = {desc = "Show the time", exec = function(ctx)
 end}
 commands.give = {desc = "Execute a command for every set of values\nEach output is added to the output stream",
   args = {"!command", "*values"}, exec = function(ctx, command, ...)
+    -- TODO: Check if the callable can be called with the number of
+    -- parameters given even before collecting the arguments.
     local streams = {...}
     local v = 0
     local o = {}
@@ -364,7 +360,7 @@ commands.give = {desc = "Execute a command for every set of values\nEach output 
         end
         table.insert(args, sa)
       end
-      local res, err = command(table.unpack(args))
+      local res, err = command.call(table.unpack(args))
       if not res then return nil, err end
       for _, val in ipairs(res) do
         table.insert(o, val)

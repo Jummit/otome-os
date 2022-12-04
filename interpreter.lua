@@ -14,6 +14,7 @@
 local check = require "check"
 local parse = require "parser"
 
+-- TODO: Explain which return values this function has.
 local execute
 function execute(command, system, functionArgs, directArgs)
   if command.args and #command.args > 0 and command.callable then
@@ -54,7 +55,8 @@ function execute(command, system, functionArgs, directArgs)
   elseif command.callable then
     return {
       call = function(...)
-        local cmd = setmetatable({callable = false, args = {...}}, {__index = command})
+        local cmd = setmetatable({callable = false, args = {...}},
+            {__index = command})
         local err = check(cmd, system)
         if err then return nil, "Error in callable execution: "..err end
         return execute(cmd, system, functionArgs, {...})
@@ -90,9 +92,9 @@ return function(line, system)
   local err = check(res, system)
   if err then return nil, err end
   res, err = execute(res, system)
-  if err then
+  if not res then
     return nil, err
-  elseif type(res) == "function" then
+  elseif res.call then
     return nil, "Unexpected callable"
   end
   return res
