@@ -27,7 +27,7 @@ local function checkParameters(command, expected)
   for argNum, arg in ipairs(command.args) do
     local expectedArg = expected[math.min(argNum, #expected)]
     if (arg.callable or false) ~= (expectedArg.callable or false) then
-      if arg.hasArgs then
+      if arg.args then
         break
       end
       if arg.callable then
@@ -50,6 +50,7 @@ local function checkCommand(command, about)
   -- TODO: There needs to be better checking of parameters given to
   -- callables.
   if argCount < args.needed then
+    i(command)
     return string.format("%s requires %s parameters (%s), got %s",
         command.command, args.needed, args.str, argCount)
   elseif args.limit and argCount > args.limit then
@@ -71,6 +72,10 @@ end
 
 local function checkFunction(func, content)
   local args = collectArguments(content)
+  if func.callable and not func.args then
+    -- A callable: !fun
+    return
+  end
   if #(func.args or {}) ~= #args then
     return ("Expected %s parameters for function %s, got %s"):format(
         #(args or {}), func.command, #(func.args or {}))

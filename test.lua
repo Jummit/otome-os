@@ -80,10 +80,20 @@ e("< [5 7.5 5]", {})
 e("< ['a 7]", {})
 e("< void", {})
 
-e("< [5 7.5 6]", {5, 7.5, 6})
+e("> [8 7.5 6]", {8, 7.5, 6})
 e("> [-5 7.5]", {})
 e("> ['a 7]", {})
 e("> void", {})
+
+e("<eq [5 6 5]", {5, 6, 5})
+e("<eq [-5 7.5]", {-5, 7.5})
+e("<eq ['a 7]", {})
+e("<eq void", {})
+
+e(">eq [5 4 5]", {5, 4, 5})
+e(">eq [-5 7.5]", {})
+e(">eq ['a 7]", {})
+e(">eq void", {})
 
 e("equal [5 7 6]", {})
 e("equal [6 6]", {6, 6})
@@ -94,6 +104,11 @@ e("equal void", {})
 e("or [1 2]", {1, 2})
 e("or void [1 2] void", {1, 2})
 e("or void void", {})
+
+e("and [1 2] 5", 5)
+e("and [1 2] 5 7", 7)
+e("and void [1 2] void", {})
+e("and void void", {})
 
 -- Help --
 e("commands")
@@ -224,11 +239,12 @@ e("redo", {"Registered function fun again"})
 -- File System --
 e("files")
 
+-- TODO: Somehow test these destructive actions.
 -- e("delete")
-e("new 'a")
-e("read 'a", {""})
+-- e("new 'a")
+-- e("read 'a", {""})
 e("read 'aa", {})
 
 -- System --
 e("time")
-e("write 'water 'lake", "water")
+-- e("write 'water 'lake", "water")

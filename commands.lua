@@ -18,6 +18,7 @@ end
 local commands = {}
 commands.commands = {desc = "Show a list of available commands",
   exec = function(_)
+    -- TODO: Return callables here.
     return keys(commands)
   end
 }
@@ -466,6 +467,20 @@ end}
 commands.history = {desc = "Show the history", exec = function(ctx)
   return map(join(ctx.history.history, ctx.history.reverts), function(h) return h.name end)
 end}
+commands["and"] = {desc = "Boolean and", args = {"*values"},
+  exec = function(_, ...)
+    local streams = {...}
+    for num, stream in ipairs(streams) do
+      if #stream == 0 then
+        return {}
+      end
+      if num == #streams then
+        return stream
+      end
+    end
+    return {}
+  end,
+}
 commands.undo = {desc = "Undo an operation", args = {"?number of operations"}, exec = function(ctx, num)
   local actions = {}
   for _ = 1, num == nil and 1 or num[1] do
@@ -599,6 +614,8 @@ addMath("/", function(a, b) return a / b end)
 addMath("%", function(a, b) return a % b end)
 addCmp(">", function(a, b) return a > b end)
 addCmp("<", function(a, b) return a < b end)
+addCmp(">eq", function(a, b) return a >= b end)
+addCmp("<eq", function(a, b) return a <= b end)
 addCmp("equal", function(a, b) return a == b end)
 
 return commands

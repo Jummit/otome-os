@@ -14,9 +14,58 @@
 local check = require "check"
 local parse = require "parser"
 
--- TODO: Explain which return values this function has.
-local execute
-function execute(command, system, functionArgs, directArgs)
+local visualize
+function visualize(command)
+  if command.string then
+    return command.string
+  elseif command.number then
+    return command.number
+  elseif command.command then
+    local args = {}
+    for _, arg in ipairs(command.args or {}) do
+      table.insert(args, visualize(arg))
+    end
+    if #args == 0 then
+      if command.callable then
+        return "!"..command.command
+      else
+        return command.command
+      end
+    else
+      local s = ("%s (%s)"):format(command.command, table.concat(args, " "))
+      if command.callable then
+        s = "!("..s..")"
+      end
+      return s
+    end
+  elseif command.arg then
+    return "$"..command.arg
+  else
+    i(command)
+    error()
+  end
+end
+
+-- This function evaluates an syntax tree parsed by the parser.
+-- The end product is either a list of strings, a callable object or an error.
+--
+-- That's not all: It can also return a "parameter" object used inside a
+-- function or callable definition ($1). These are looked up in "functionArgs"
+-- when they are evaluated as parameters to a command.
+-- 
+-- functionArgs is passed when executing a function or closure.
+
+local depth = 0
+local root_execute
+local function execute(command, system, functionArgs)
+  print(string.rep("  ", depth)..visualize(command))
+  depth = depth + 1
+  local res, err = root_execute(command, system, functionArgs)
+  depth = depth - 1
+  return res, err
+end
+
+function root_execute(command, system, functionArgs)
   if command.args and #command.args > 0 and command.callable then
     return {
       call = function(...)
@@ -29,14 +78,10 @@ function execute(command, system, functionArgs, directArgs)
     }
   end
   local evaluatedArgs = {}
-  if not directArgs then
-    for _, arg in ipairs(command.args or {}) do
-      local evaluated, err = execute(arg, system, functionArgs)
-      if err then return nil, err end
-      table.insert(evaluatedArgs, evaluated)
-    end
-  else
-    evaluatedArgs = directArgs
+  for _, arg in ipairs(command.args or {}) do
+    local evaluated, err = execute(arg, system, functionArgs)
+    if err then return nil, err end
+    table.insert(evaluatedArgs, evaluated)
   end
 
   local evaluatedConfig = {}
@@ -45,21 +90,26 @@ function execute(command, system, functionArgs, directArgs)
   end
 
   if command.callable and command.arg and functionArgs then
+    -- A closure.
     return execute({command = functionArgs[command.callableArg],
         args = command.args}, system, functionArgs)
   elseif command.arg then
     if not functionArgs then
-      return nil, ("Tried to use parameter %s outside of function"):format(command.arg)
+      return nil, ("Tried to use parameter %s outside of function"):format(
+          command.arg)
     end
+    -- The returned parameter is stored inside the evaluatedArgs of
+    -- another command.
     return functionArgs[command.arg]
   elseif command.callable then
     return {
       call = function(...)
+        -- Set callable to false to force actual evaluation of the command.
         local cmd = setmetatable({callable = false, args = {...}},
             {__index = command})
         local err = check(cmd, system)
         if err then return nil, "Error in callable execution: "..err end
-        return execute(cmd, system, functionArgs, {...})
+        return execute(cmd, system, functionArgs)
       end,
       command = command,
     }
@@ -74,8 +124,13 @@ function execute(command, system, functionArgs, directArgs)
     local context = setmetatable({cfg = evaluatedConfig}, {__index = system})
     local res, err = cmd.exec(context, table.unpack(evaluatedArgs))
     if err then return nil, err end
-    assert(type(res) == "table", ('Command "%s" didn\'t return a list'):format(command.command))
+    assert(type(res) == "table",
+        ('Command "%s" didn\'t return a list, but "%s"'):format(
+        command.command, res))
     return res
+  elseif command[1] then
+    -- Tried to evaluate an already evaluated list.
+    return command
   else
     return nil, ("Command %s not found"):format(command.command)
   end
@@ -91,7 +146,7 @@ return function(line, system)
   end
   local err = check(res, system)
   if err then return nil, err end
-  res, err = execute(res, system)
+  res, err = execute(res, system, {{}})
   if not res then
     return nil, err
   elseif res.call then

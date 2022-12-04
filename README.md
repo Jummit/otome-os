@@ -20,6 +20,9 @@ Command Arg1 Arg2 (SubCommand Arg1 Arg2)
 
 ## TODO
 
+- [ ] test system functions: running scripts
+- [ ] test some parsing errors
+- [ ] test some more complex programs
 - [ ] example command to show usage of commands
 - [ ] add a documentation folder with some tutorials / explainations
 - [ ] add config to commands where it makes sense

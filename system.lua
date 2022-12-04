@@ -88,9 +88,9 @@ end
 
 function system:registerFunction(name, body)
   local parsedCmd, parseErr = parse(body)
-  if not parsedCmd then return nil, parseErr end
+  if not parsedCmd then return parseErr end
   local err = check(parsedCmd, self)
-	if err then return nil, err end
+	if err then return err end
   parsedCmd.definition = body
   local before = self.functions[name]
   self.history:addAction("Registered function "..name,
@@ -104,7 +104,9 @@ end
 
 function system:executeScript(file)
   local allRes = {}
-  local script = lines(read(system.dir..file))
+  local content = read(system.dir..file)
+  if not content then return nil, ("Script %s not found"):format(file) end
+  local script = lines(content)
   if #script == 0 then return "File doesn't exist or is empty" end
   for lineNum, line in ipairs(script) do
     local res, err = self:executeLine(line)

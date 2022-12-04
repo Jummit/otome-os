@@ -138,9 +138,11 @@ local function parse(line)
   function readCommandWithArgs()
     local command, err = readCommand()
     if not command then return nil, err end
-    command.hasArgs = true
     local after = peek()
-    if after then
+    -- readCommand can return a command with arguments in one case:
+    -- if it's a shorthand list: [].
+    -- In that case it doesn't make sense to parse more parameters.
+    if after and not command.args then
       local arg, argErr = readParameters()
       if argErr then return nil, argErr end
       command.args = arg
